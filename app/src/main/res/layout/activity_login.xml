@@ -49,6 +49,7 @@
 
         <Button
             android:id="@+id/btnLogin"
+            android:backgroundTint="@color/green"
             android:layout_margin="15dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -57,14 +58,17 @@
 
         <Button
             android:id="@+id/btnRegister"
+            android:backgroundTint="@color/green"
             android:layout_margin="15dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
 
-            android:text="Register"/>
+            android:text="join"/>
     </LinearLayout>
         <Button
             android:id="@+id/btnGuest"
+            android:backgroundTint="@color/green"
+
             android:layout_margin="15dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
