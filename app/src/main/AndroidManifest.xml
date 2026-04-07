@@ -36,6 +36,9 @@
             android:name=".CustomerMainActivity"
             android:exported="false" />
         <activity
+            android:name=".ManageOrderActivity"
+            android:exported="false" />
+        <activity
             android:name=".SplashScreen"
             android:exported="true">
             <intent-filter>
