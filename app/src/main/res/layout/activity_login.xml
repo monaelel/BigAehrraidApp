@@ -14,7 +14,7 @@
         android:layout_width="129dp"
         android:layout_height="99dp"
         android:layout_marginBottom="30dp"
-        android:src="@drawable/sillyCat" />
+        android:src="@drawable/sillycat" />
 
 
     <TextView

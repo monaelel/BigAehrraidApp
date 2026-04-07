@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="32dp"
+    android:background="#FFFFFF">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="[ Logo ]"
+        android:textSize="18sp"
+        android:textColor="#000000" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Big Aehrraid"
+        android:textStyle="bold"
+        android:textSize="28sp"
+        android:textColor="#000000"
+        android:layout_marginTop="8dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Who are you?"
+        android:textSize="16sp"
+        android:textColor="#666666"
+        android:layout_marginTop="48dp"
+        android:layout_marginBottom="32dp" />
+
+    <Button
+        android:id="@+id/btnCustomer"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:text="Customer"
+        android:textSize="18sp"
+        android:backgroundTint="#000000"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="16dp" />
+
+    <Button
+        android:id="@+id/btnRestaurant"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:text="Restaurant"
+        android:textSize="18sp"
+        android:backgroundTint="#000000"
+        android:textColor="#FFFFFF" />
+
+</LinearLayout>
