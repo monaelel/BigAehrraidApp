@@ -15,21 +15,35 @@ public class ActivityAuthLogin extends AppCompatActivity {
 
     TextView tvGoToRegister;
     Button btnSignIn;
+    String role;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_auth_login);
+
+        role = getIntent().getStringExtra("role");
+
         tvGoToRegister = findViewById(R.id.tvGoToRegister);
         btnSignIn = findViewById(R.id.btnSignIn);
 
         tvGoToRegister.setOnClickListener(v -> {
             Intent intent = new Intent(ActivityAuthLogin.this, ActivityAuthRegister.class);
+            intent.putExtra("role", role);
             startActivity(intent);
         });
 
         btnSignIn.setOnClickListener(v -> {
             // Sign in logic
+            Intent intent;
+            if ("restaurant".equals(role)) {
+                intent = new Intent(ActivityAuthLogin.this, RestaurantMainActivity.class);
+            } else {
+                intent = new Intent(ActivityAuthLogin.this, CustomerMainActivity.class);
+            }
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
         });
     }
 }
