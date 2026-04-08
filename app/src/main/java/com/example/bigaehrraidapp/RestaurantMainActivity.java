@@ -20,7 +20,6 @@ public class RestaurantMainActivity extends AppCompatActivity {
 
         restaurantBottomNav = findViewById(R.id.restaurantBottomNav);
 
-        // Load default fragment
         loadFragment(new RestaurantHomeFragment());
         restaurantBottomNav.setSelectedItemId(R.id.nav_home);
 
@@ -31,16 +30,37 @@ public class RestaurantMainActivity extends AppCompatActivity {
             } else if (id == R.id.nav_store) {
                 loadFragment(new RestaurantStoreFragment());
             } else if (id == R.id.nav_account) {
-                loadFragment(new RestaurantAccountFragment());
+                loadFragment(new RestaurantAccountMenuFragment());
             }
             return true;
         });
     }
 
+    // Root-level navigation (no back stack) — used by bottom nav tabs
     private void loadFragment(Fragment fragment) {
+        getSupportFragmentManager()
+                .popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.restaurantFragmentContainer, fragment)
                 .commit();
+    }
+
+    // Sub-navigation (with back stack) — used by in-tab sub-screens
+    public void navigateTo(Fragment fragment) {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.restaurantFragmentContainer, fragment)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+            getSupportFragmentManager().popBackStack();
+        } else {
+            super.onBackPressed();
+        }
     }
 }
