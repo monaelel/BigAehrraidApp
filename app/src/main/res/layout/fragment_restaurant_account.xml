@@ -10,6 +10,16 @@
         android:orientation="vertical"
         android:padding="24dp">
 
+        <!-- Back arrow -->
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginBottom="8dp"
+            android:padding="4dp"
+            android:src="@drawable/ic_back_arrow"
+            android:contentDescription="Back" />
+
         <!-- Profile Photo -->
         <ImageView
             android:id="@+id/imgRestaurantProfile"
