@@ -14,6 +14,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class ActivityAuthLogin extends AppCompatActivity {
 
+    TextView tvGoToRegister;
+    Button btnSignIn;
+    String role;
     EditText      etEmail, etPassword;
     Button        btnSignIn;
     TextView      tvGoToRegister;
@@ -27,6 +30,8 @@ public class ActivityAuthLogin extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_auth_login);
 
+        role = getIntent().getStringExtra("role");
+
         authRepo = AuthRepository.getInstance(this);
 
         etEmail        = findViewById(R.id.et_login_email);
@@ -34,6 +39,22 @@ public class ActivityAuthLogin extends AppCompatActivity {
         btnSignIn      = findViewById(R.id.btnSignIn);
         tvGoToRegister = findViewById(R.id.tvGoToRegister);
 
+        tvGoToRegister.setOnClickListener(v -> {
+            Intent intent = new Intent(ActivityAuthLogin.this, ActivityAuthRegister.class);
+            intent.putExtra("role", role);
+            startActivity(intent);
+        });
+
+        btnSignIn.setOnClickListener(v -> {
+            // Sign in logic
+            Intent intent;
+            if ("restaurant".equals(role)) {
+                intent = new Intent(ActivityAuthLogin.this, RestaurantMainActivity.class);
+            } else {
+                intent = new Intent(ActivityAuthLogin.this, CustomerMainActivity.class);
+            }
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
         tvGoToRegister.setOnClickListener(v ->
                 startActivity(new Intent(this, ActivityAuthRegister.class))
         );
