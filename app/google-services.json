@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "185618909146",
+    "project_id": "big-aehrraid",
+    "storage_bucket": "big-aehrraid.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:185618909146:android:2f71bf109ad8e0b014a2e3",
+        "android_client_info": {
+          "package_name": "com.example.bigaehrraidapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA2GVpCjB5_vRNQL-fat0B9EOsog6UgGDU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
