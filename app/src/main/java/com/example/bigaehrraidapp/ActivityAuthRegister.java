@@ -4,22 +4,18 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class ActivityAuthRegister extends AppCompatActivity {
 
-    RadioGroup rgUserRole;
-    Button btnSignUp;
+    String   role;
+    Button   btnSignUp;
     TextView tvGoToLogin;
-    String role;
-    Button     btnSignUp;
-    TextView   tvGoToLogin;
-
     EditText etEmail, etPassword, etConfirmPassword;
 
     AuthRepository authRepo;
@@ -30,34 +26,27 @@ public class ActivityAuthRegister extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_auth_register);
 
-        role = getIntent().getStringExtra("role");
-
-        rgUserRole = findViewById(R.id.rgUserRole);
-        btnSignUp = findViewById(R.id.btnSignUp);
-        tvGoToLogin = findViewById(R.id.tvGoToLogin);
+        role     = getIntent().getStringExtra("role");
         authRepo = AuthRepository.getInstance(this);
 
-        rgUserRole        = findViewById(R.id.rgUserRole);
+        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
+
         btnSignUp         = findViewById(R.id.btnSignUp);
         tvGoToLogin       = findViewById(R.id.tvGoToLogin);
         etEmail           = findViewById(R.id.etRegisterEmail);
         etPassword        = findViewById(R.id.etRegisterPassword);
         etConfirmPassword = findViewById(R.id.et_confirm_password);
 
-        // Pre-select the radio button based on role passed in
+        // Restaurants cannot self-register
         if ("restaurant".equals(role)) {
-            rgUserRole.check(R.id.rbRestaurant);
-        } else {
-            rgUserRole.check(R.id.rbCustomer);
+            Toast.makeText(this,
+                "Restaurant accounts are managed by admin. Please sign in with your provided credentials.",
+                Toast.LENGTH_LONG).show();
+            goToLogin();
+            return;
         }
 
-        tvGoToLogin.setOnClickListener(v -> {
-            Intent intent = new Intent(ActivityAuthRegister.this, ActivityAuthLogin.class);
-            intent.putExtra("role", role);
-            startActivity(intent);
-            startActivity(new Intent(this, ActivityAuthLogin.class));
-            finish();
-        });
+        tvGoToLogin.setOnClickListener(v -> goToLogin());
 
         btnSignUp.setOnClickListener(v -> {
             String email    = etEmail.getText().toString().trim();
@@ -77,49 +66,40 @@ public class ActivityAuthRegister extends AppCompatActivity {
                 return;
             }
 
-            int selectedId = rgUserRole.getCheckedRadioButtonId();
-            Intent intent;
-            if (selectedId == R.id.rbRestaurant) {
-                intent = new Intent(ActivityAuthRegister.this, RestaurantMainActivity.class);
-            } else {
-                intent = new Intent(ActivityAuthRegister.this, CustomerMainActivity.class);
-            }
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            String role;
-            if (selectedId == R.id.rbRestaurant) {
-                role = "restaurant";
-            } else if (selectedId == R.id.rbCustomer) {
-                role = "customer";
-            } else {
-                Toast.makeText(this, "Please select a role", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
             btnSignUp.setEnabled(false);
             btnSignUp.setText("Creating account...");
 
-            authRepo.register(email, password, role, new AuthRepository.AuthCallback() {
+            authRepo.register(email, password, "customer", new AuthRepository.AuthCallback() {
                 @Override
                 public void onSuccess() {
-                    Intent intent;
-                    if ("restaurant".equals(role)) {
-                        intent = new Intent(ActivityAuthRegister.this, RestaurantMainActivity.class);
-                    } else {
-                        intent = new Intent(ActivityAuthRegister.this, CustomerMainActivity.class);
-                    }
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
-                    finish();
+                    // Sign out so user must log in manually
+                    authRepo.logout();
+
+                    // Show dialog — navigate to login only after user taps OK
+                    new AlertDialog.Builder(ActivityAuthRegister.this)
+                        .setTitle("Account Created!")
+                        .setMessage("Your account has been created successfully.\nPlease sign in to continue.")
+                        .setCancelable(false)
+                        .setPositiveButton("Sign In", (dialog, which) -> goToLogin())
+                        .show();
                 }
 
                 @Override
                 public void onFailure(String error) {
                     btnSignUp.setEnabled(true);
                     btnSignUp.setText("Sign Up");
-                    Toast.makeText(ActivityAuthRegister.this, "Register failed: " + error, Toast.LENGTH_LONG).show();
+                    Toast.makeText(ActivityAuthRegister.this,
+                        "Registration failed: " + error, Toast.LENGTH_LONG).show();
                 }
             });
         });
+    }
+
+    private void goToLogin() {
+        Intent intent = new Intent(this, ActivityAuthLogin.class);
+        intent.putExtra("role", "customer");
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(intent);
+        finish();
     }
 }
