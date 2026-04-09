@@ -12,9 +12,10 @@ import java.util.List;
 
 public class ManageOrderActivity extends AppCompatActivity {
 
-    RecyclerView rvOrders;
-    List<Order> orders;
-    OrderAdapter adapter;
+    RecyclerView  rvOrders;
+    List<Order>   orders;
+    OrderAdapter  adapter;
+    OrderRepository orderRepo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,39 +23,52 @@ public class ManageOrderActivity extends AppCompatActivity {
         setContentView(R.layout.activity_manage_order);
 
         rvOrders = findViewById(R.id.rvOrders);
+        orders   = new ArrayList<>();
 
-        // Sample orders — replace with real data source later
-        orders = new ArrayList<>();
-        orders.add(new Order("372873", "Alice Martin",   3, 47.50, Order.STATUS_INCOMING));
-        orders.add(new Order("372874", "Bob Tremblay",   2, 23.00, Order.STATUS_INCOMING));
-        orders.add(new Order("372875", "Claire Nguyen",  5, 88.75, Order.STATUS_PREPARING));
-        orders.add(new Order("372876", "David Lavoie",   1, 12.99, Order.STATUS_PREPARING));
-        orders.add(new Order("372877", "Emma Côté",      4, 61.20, Order.STATUS_COMPLETED));
-        orders.add(new Order("372878", "Frank Gagnon",   2, 31.40, Order.STATUS_COMPLETED));
+        AuthRepository  authRepo  = AuthRepository.getInstance(this);
+        orderRepo = OrderRepository.getInstance(authRepo);
 
         adapter = new OrderAdapter(orders, new OrderAdapter.OnOrderActionListener() {
 
             @Override
             public void onAccept(int position) {
-                orders.get(position).status = Order.STATUS_PREPARING;
-                adapter.notifyItemChanged(position);
+                Order o = orders.get(position);
+                orderRepo.updateOrderStatus(o.orderId, Order.STATUS_PREPARING,
+                    new OrderRepository.ActionCallback() {
+                        @Override public void onSuccess() {}
+                        @Override public void onFailure(String e) {
+                            Toast.makeText(ManageOrderActivity.this, "Error: " + e, Toast.LENGTH_SHORT).show();
+                        }
+                    });
             }
 
             @Override
             public void onDecline(int position) {
-                orders.remove(position);
-                adapter.notifyItemRemoved(position);
+                Order o = orders.get(position);
+                orderRepo.updateOrderStatus(o.orderId, Order.STATUS_DECLINED,
+                    new OrderRepository.ActionCallback() {
+                        @Override public void onSuccess() {}
+                        @Override public void onFailure(String e) {
+                            Toast.makeText(ManageOrderActivity.this, "Error: " + e, Toast.LENGTH_SHORT).show();
+                        }
+                    });
             }
 
             @Override
             public void onReady(int position) {
-                orders.get(position).status = Order.STATUS_COMPLETED;
-                adapter.notifyItemChanged(position);
+                Order o = orders.get(position);
+                orderRepo.updateOrderStatus(o.orderId, Order.STATUS_COMPLETED,
+                    new OrderRepository.ActionCallback() {
+                        @Override public void onSuccess() {}
+                        @Override public void onFailure(String e) {
+                            Toast.makeText(ManageOrderActivity.this, "Error: " + e, Toast.LENGTH_SHORT).show();
+                        }
+                    });
             }
 
             @Override
             public void onOrderClick(int position) {
-                // TODO: navigate to OrderDetailActivity (separate branch)
+                // TODO: open OrderDetailActivity (separate branch)
                 Toast.makeText(ManageOrderActivity.this,
                         "Order #" + orders.get(position).orderId + " details — coming soon",
                         Toast.LENGTH_SHORT).show();
@@ -63,6 +77,26 @@ public class ManageOrderActivity extends AppCompatActivity {
 
         rvOrders.setLayoutManager(new LinearLayoutManager(this));
         rvOrders.setAdapter(adapter);
+
+        // Start real-time listener
+        orderRepo.listenToOrders(new OrderRepository.OrdersCallback() {
+            @Override
+            public void onOrdersUpdated(List<Order> updated) {
+                orders.clear();
+                orders.addAll(updated);
+                adapter.notifyDataSetChanged();
+            }
+            @Override
+            public void onFailure(String error) {
+                Toast.makeText(ManageOrderActivity.this, "Error: " + error, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        orderRepo.removeListener();
     }
 
     @Override

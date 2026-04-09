@@ -12,11 +12,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import java.util.Locale;
+
 public class RestaurantHomeFragment extends Fragment {
 
-    TextView tvTotalSales, tvOrderVolume, tvTicketSize;
+    TextView          tvTotalSales, tvOrderVolume, tvTicketSize;
     SalesBarChartView salesBarChart;
-    Button btnManageOrder;
+    Button            btnManageOrder;
+
+    AuthRepository  authRepo;
+    OrderRepository orderRepo;
 
     @Nullable
     @Override
@@ -30,23 +35,44 @@ public class RestaurantHomeFragment extends Fragment {
         salesBarChart  = view.findViewById(R.id.salesBarChart);
         btnManageOrder = view.findViewById(R.id.btnManageOrder);
 
-        // TODO: replace with real data from backend
-        tvTotalSales.setText("$ 4,507.55");
-        tvOrderVolume.setText("193");
-        tvTicketSize.setText("$23.35");
+        authRepo  = AuthRepository.getInstance(requireContext());
+        orderRepo = OrderRepository.getInstance(authRepo);
 
-        // Sample hourly sales data (24 values, hour 0 → 23)
-        salesBarChart.setValues(new float[]{
-                2,  1,  1,  0,  0,  1,
-                4,  8, 12, 18, 22, 28,
-               35, 40, 38, 30, 42, 55,
-               48, 60, 58, 45, 30, 15
-        });
+        loadTodayStats();
 
         btnManageOrder.setOnClickListener(v ->
                 startActivity(new Intent(getContext(), ManageOrderActivity.class))
         );
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadTodayStats(); // refresh when returning from ManageOrder
+    }
+
+    private void loadTodayStats() {
+        String uid = authRepo.getCurrentUserId();
+        if (uid == null) return;
+
+        orderRepo.getTodayStats(uid, new OrderRepository.StatsCallback() {
+            @Override
+            public void onSuccess(double totalSales, int orderVolume,
+                                  double ticketSize, float[] hourlyData) {
+                tvTotalSales.setText(String.format(Locale.getDefault(), "$ %.2f", totalSales));
+                tvOrderVolume.setText(String.valueOf(orderVolume));
+                tvTicketSize.setText(String.format(Locale.getDefault(), "$ %.2f", ticketSize));
+                salesBarChart.setValues(hourlyData);
+            }
+
+            @Override
+            public void onFailure(String error) {
+                tvTotalSales.setText("$ 0.00");
+                tvOrderVolume.setText("0");
+                tvTicketSize.setText("$ 0.00");
+            }
+        });
     }
 }
