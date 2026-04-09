@@ -6,13 +6,10 @@ import android.os.Handler;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 public class SplashScreen extends AppCompatActivity {
 
-    private static final int SPLASH_TIME = 3000;
+    private static final int SPLASH_TIME = 2000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,12 +17,25 @@ public class SplashScreen extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_splash_screen);
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Intent intent = new Intent(SplashScreen.this, RoleSelectionActivity.class);
+        new Handler().postDelayed(() -> {
+            AuthRepository auth = AuthRepository.getInstance(this);
+
+            if (auth.isLoggedIn()) {
+                String role = auth.getCachedRole();
+                Intent intent;
+                if ("restaurant".equals(role)) {
+                    intent = new Intent(this, RestaurantMainActivity.class);
+                } else if ("customer".equals(role)) {
+                    intent = new Intent(this, CustomerMainActivity.class);
+                } else {
+                    // Role unknown — send to login to re-authenticate
+                    intent = new Intent(this, RoleSelectionActivity.class);
+                }
                 startActivity(intent);
+            } else {
+                startActivity(new Intent(this, RoleSelectionActivity.class));
             }
+            finish();
         }, SPLASH_TIME);
     }
 }
