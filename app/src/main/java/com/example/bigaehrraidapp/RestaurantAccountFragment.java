@@ -27,6 +27,10 @@ public class RestaurantAccountFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_restaurant_account, container, false);
 
+        view.findViewById(R.id.btnBack).setOnClickListener(v ->
+                requireActivity().getSupportFragmentManager().popBackStack()
+        );
+
         tvRestaurantName  = view.findViewById(R.id.tvRestaurantName);
         tvRestaurantEmail = view.findViewById(R.id.tvRestaurantEmail);
         tvAddressName     = view.findViewById(R.id.tvAddressName);

@@ -4,8 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ProgressBar;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -14,13 +15,11 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class ActivityAuthLogin extends AppCompatActivity {
 
+    String   role;
+    EditText etEmail, etPassword;
+    Button   btnSignIn;
     TextView tvGoToRegister;
-    Button btnSignIn;
-    String role;
-    EditText      etEmail, etPassword;
-    Button        btnSignIn;
-    TextView      tvGoToRegister;
-    ProgressBar   progressBar;
+    CheckBox cbRememberMe;
 
     AuthRepository authRepo;
 
@@ -30,34 +29,36 @@ public class ActivityAuthLogin extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_auth_login);
 
-        role = getIntent().getStringExtra("role");
-
+        role    = getIntent().getStringExtra("role");
         authRepo = AuthRepository.getInstance(this);
+
+        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
 
         etEmail        = findViewById(R.id.et_login_email);
         etPassword     = findViewById(R.id.etLoginPassword);
         btnSignIn      = findViewById(R.id.btnSignIn);
         tvGoToRegister = findViewById(R.id.tvGoToRegister);
+        cbRememberMe   = findViewById(R.id.cbRememberMe);
+
+        // Restore saved preference
+        cbRememberMe.setChecked(authRepo.isRemembered());
+
+        // Show the right bottom section based on role
+        LinearLayout layoutCreateAccount = findViewById(R.id.layoutCreateAccount);
+        TextView     tvContactAdmin      = findViewById(R.id.tvContactAdmin);
+        if ("restaurant".equals(role)) {
+            tvContactAdmin.setVisibility(View.VISIBLE);
+            layoutCreateAccount.setVisibility(View.GONE);
+        } else {
+            layoutCreateAccount.setVisibility(View.VISIBLE);
+            tvContactAdmin.setVisibility(View.GONE);
+        }
 
         tvGoToRegister.setOnClickListener(v -> {
             Intent intent = new Intent(ActivityAuthLogin.this, ActivityAuthRegister.class);
             intent.putExtra("role", role);
             startActivity(intent);
         });
-
-        btnSignIn.setOnClickListener(v -> {
-            // Sign in logic
-            Intent intent;
-            if ("restaurant".equals(role)) {
-                intent = new Intent(ActivityAuthLogin.this, RestaurantMainActivity.class);
-            } else {
-                intent = new Intent(ActivityAuthLogin.this, CustomerMainActivity.class);
-            }
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-        tvGoToRegister.setOnClickListener(v ->
-                startActivity(new Intent(this, ActivityAuthRegister.class))
-        );
 
         btnSignIn.setOnClickListener(v -> {
             String email    = etEmail.getText().toString().trim();
@@ -71,12 +72,13 @@ public class ActivityAuthLogin extends AppCompatActivity {
             btnSignIn.setEnabled(false);
             btnSignIn.setText("Signing in...");
 
-            authRepo.login(email, password, new AuthRepository.AuthCallback() {
+            boolean rememberMe = cbRememberMe.isChecked();
+            authRepo.login(email, password, role, rememberMe, new AuthRepository.AuthCallback() {
                 @Override
                 public void onSuccess() {
-                    String role = authRepo.getCachedRole();
+                    String cachedRole = authRepo.getCachedRole();
                     Intent intent;
-                    if ("restaurant".equals(role)) {
+                    if ("restaurant".equals(cachedRole)) {
                         intent = new Intent(ActivityAuthLogin.this, RestaurantMainActivity.class);
                     } else {
                         intent = new Intent(ActivityAuthLogin.this, CustomerMainActivity.class);

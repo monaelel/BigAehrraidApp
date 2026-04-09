@@ -49,6 +49,16 @@
         android:text="Restaurant"
         android:textSize="18sp"
         android:backgroundTint="#000000"
-        android:textColor="#FFFFFF" />
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="16dp" />
+
+    <Button
+        android:id="@+id/btnGuest"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:text="Continue as Guest"
+        android:textSize="16sp"
+        android:background="@drawable/shape_button_outline"
+        android:textColor="#000000" />
 
 </LinearLayout>

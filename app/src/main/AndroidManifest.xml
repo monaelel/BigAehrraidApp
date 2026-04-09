@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <application
+        android:name=".App"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -37,6 +38,9 @@
             android:exported="false" />
         <activity
             android:name=".ManageOrderActivity"
+            android:exported="false" />
+        <activity
+            android:name=".OrderDetailActivity"
             android:exported="false" />
         <activity
             android:name=".SplashScreen"

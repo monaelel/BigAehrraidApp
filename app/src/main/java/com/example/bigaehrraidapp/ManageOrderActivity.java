@@ -1,6 +1,8 @@
 package com.example.bigaehrraidapp;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,9 +14,9 @@ import java.util.List;
 
 public class ManageOrderActivity extends AppCompatActivity {
 
-    RecyclerView  rvOrders;
-    List<Order>   orders;
-    OrderAdapter  adapter;
+    RecyclerView    rvOrders;
+    List<Order>     orders;
+    OrderAdapter    adapter;
     OrderRepository orderRepo;
 
     @Override
@@ -22,10 +24,12 @@ public class ManageOrderActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manage_order);
 
-        rvOrders = findViewById(R.id.rvOrders);
-        orders   = new ArrayList<>();
+        ((ImageView) findViewById(R.id.btnBack)).setOnClickListener(v -> finish());
 
-        AuthRepository  authRepo  = AuthRepository.getInstance(this);
+        rvOrders  = findViewById(R.id.rvOrders);
+        orders    = new ArrayList<>();
+
+        AuthRepository authRepo = AuthRepository.getInstance(this);
         orderRepo = OrderRepository.getInstance(authRepo);
 
         adapter = new OrderAdapter(orders, new OrderAdapter.OnOrderActionListener() {
@@ -68,17 +72,15 @@ public class ManageOrderActivity extends AppCompatActivity {
 
             @Override
             public void onOrderClick(int position) {
-                // TODO: open OrderDetailActivity (separate branch)
-                Toast.makeText(ManageOrderActivity.this,
-                        "Order #" + orders.get(position).orderId + " details — coming soon",
-                        Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(ManageOrderActivity.this, OrderDetailActivity.class);
+                intent.putExtra(OrderDetailActivity.EXTRA_ORDER_ID, orders.get(position).orderId);
+                startActivity(intent);
             }
         });
 
         rvOrders.setLayoutManager(new LinearLayoutManager(this));
         rvOrders.setAdapter(adapter);
 
-        // Start real-time listener
         orderRepo.listenToOrders(new OrderRepository.OrdersCallback() {
             @Override
             public void onOrdersUpdated(List<Order> updated) {
@@ -97,11 +99,5 @@ public class ManageOrderActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         orderRepo.removeListener();
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        finish();
     }
 }

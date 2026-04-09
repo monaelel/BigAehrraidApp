@@ -1,5 +1,6 @@
 package com.example.bigaehrraidapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,7 +13,7 @@ import androidx.fragment.app.Fragment;
 
 public class RestaurantAccountMenuFragment extends Fragment {
 
-    Button btnAccountInformation, btnManageStoreHours;
+    Button btnAccountInformation, btnManageStoreHours, btnLogout;
 
     @Nullable
     @Override
@@ -21,7 +22,8 @@ public class RestaurantAccountMenuFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_restaurant_account_menu, container, false);
 
         btnAccountInformation = view.findViewById(R.id.btnAccountInformation);
-        btnManageStoreHours = view.findViewById(R.id.btnManageStoreHours);
+        btnManageStoreHours   = view.findViewById(R.id.btnManageStoreHours);
+        btnLogout             = view.findViewById(R.id.btnLogout);
 
         btnAccountInformation.setOnClickListener(v ->
                 ((RestaurantMainActivity) requireActivity())
@@ -32,6 +34,13 @@ public class RestaurantAccountMenuFragment extends Fragment {
                 ((RestaurantMainActivity) requireActivity())
                         .navigateTo(new RestaurantStoreHoursFragment())
         );
+
+        btnLogout.setOnClickListener(v -> {
+            AuthRepository.getInstance(requireContext()).logout();
+            Intent intent = new Intent(requireContext(), RoleSelectionActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+        });
 
         return view;
     }
