@@ -21,12 +21,14 @@ public class RoleSelectionActivity extends AppCompatActivity {
         btnRestaurant = findViewById(R.id.btnRestaurant);
 
         btnCustomer.setOnClickListener(v -> {
-            Intent intent = new Intent(RoleSelectionActivity.this, CustomerMainActivity.class);
+            Intent intent = new Intent(RoleSelectionActivity.this, ActivityAuthLogin.class);
+            intent.putExtra("role", "customer");
             startActivity(intent);
         });
 
         btnRestaurant.setOnClickListener(v -> {
-            Intent intent = new Intent(RoleSelectionActivity.this, RestaurantMainActivity.class);
+            Intent intent = new Intent(RoleSelectionActivity.this, ActivityAuthLogin.class);
+            intent.putExtra("role", "restaurant");
             startActivity(intent);
         });
     }

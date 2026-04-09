@@ -14,6 +14,9 @@ import androidx.appcompat.app.AppCompatActivity;
 public class ActivityAuthRegister extends AppCompatActivity {
 
     RadioGroup rgUserRole;
+    Button btnSignUp;
+    TextView tvGoToLogin;
+    String role;
     Button     btnSignUp;
     TextView   tvGoToLogin;
 
@@ -27,6 +30,11 @@ public class ActivityAuthRegister extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_auth_register);
 
+        role = getIntent().getStringExtra("role");
+
+        rgUserRole = findViewById(R.id.rgUserRole);
+        btnSignUp = findViewById(R.id.btnSignUp);
+        tvGoToLogin = findViewById(R.id.tvGoToLogin);
         authRepo = AuthRepository.getInstance(this);
 
         rgUserRole        = findViewById(R.id.rgUserRole);
@@ -36,7 +44,17 @@ public class ActivityAuthRegister extends AppCompatActivity {
         etPassword        = findViewById(R.id.etRegisterPassword);
         etConfirmPassword = findViewById(R.id.et_confirm_password);
 
+        // Pre-select the radio button based on role passed in
+        if ("restaurant".equals(role)) {
+            rgUserRole.check(R.id.rbRestaurant);
+        } else {
+            rgUserRole.check(R.id.rbCustomer);
+        }
+
         tvGoToLogin.setOnClickListener(v -> {
+            Intent intent = new Intent(ActivityAuthRegister.this, ActivityAuthLogin.class);
+            intent.putExtra("role", role);
+            startActivity(intent);
             startActivity(new Intent(this, ActivityAuthLogin.class));
             finish();
         });
@@ -60,6 +78,14 @@ public class ActivityAuthRegister extends AppCompatActivity {
             }
 
             int selectedId = rgUserRole.getCheckedRadioButtonId();
+            Intent intent;
+            if (selectedId == R.id.rbRestaurant) {
+                intent = new Intent(ActivityAuthRegister.this, RestaurantMainActivity.class);
+            } else {
+                intent = new Intent(ActivityAuthRegister.this, CustomerMainActivity.class);
+            }
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
             String role;
             if (selectedId == R.id.rbRestaurant) {
                 role = "restaurant";
