@@ -46,6 +46,10 @@ public class RestaurantStoreHoursFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_restaurant_store_hours, container, false);
 
+        view.findViewById(R.id.btnBack).setOnClickListener(v ->
+                requireActivity().getSupportFragmentManager().popBackStack()
+        );
+
         bindViews(view);
         setupSwitches();
         setupTimePickers();

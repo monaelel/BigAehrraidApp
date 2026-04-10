@@ -20,6 +20,11 @@ public class SplashScreen extends AppCompatActivity {
         new Handler().postDelayed(() -> {
             AuthRepository auth = AuthRepository.getInstance(this);
 
+            // If user didn't check "Remember Me", sign them out on every cold start
+            if (auth.isLoggedIn() && !auth.isRemembered()) {
+                auth.logout();
+            }
+
             if (auth.isLoggedIn()) {
                 String role = auth.getCachedRole();
                 Intent intent;

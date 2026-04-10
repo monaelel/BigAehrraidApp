@@ -146,5 +146,6 @@ public class OrderDetailActivity extends AppCompatActivity {
         } else {
             btnReady.setVisibility(View.GONE);
         }
+        btnReady.setVisibility(Order.STATUS_PREPARING.equals(order.status) ? View.VISIBLE : View.GONE);
     }
 }
