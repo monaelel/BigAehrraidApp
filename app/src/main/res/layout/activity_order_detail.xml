@@ -128,7 +128,6 @@
                 android:id="@+id/tvDetailItemsHeader"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Items ([ total items count ])"
                 android:text="Items"
                 android:textColor="#000000"
                 android:textSize="15sp"
@@ -169,7 +168,6 @@
                     android:id="@+id/tvDetailSubtotal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="$ [amount]"
                     android:text="$ 0.00"
                     android:textColor="#444444"
                     android:textSize="14sp" />
@@ -195,7 +193,6 @@
                     android:id="@+id/tvDetailTaxes"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="$ [amount]"
                     android:text="$ 0.00"
                     android:textColor="#444444"
                     android:textSize="14sp" />
@@ -228,7 +225,6 @@
                     android:id="@+id/tvDetailTotal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="$ [amount]"
                     android:text="$ 0.00"
                     android:textColor="#000000"
                     android:textSize="16sp"

@@ -100,7 +100,6 @@ public class AuthRepository {
             .addOnFailureListener(e -> cb.onFailure(e.getMessage()));
     }
 
-    public void login(String email, String password, AuthCallback cb) {
     // ── Login ─────────────────────────────────────────────────────────────────
 
     /**
