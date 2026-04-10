@@ -48,8 +48,6 @@ public class OrderRepository {
         return instance;
     }
 
-    // ── Real-time orders listener ─────────────────────────────────────────────
-
     public void listenToOrders(OrdersCallback cb) {
         String restaurantId = authRepo.getCurrentUserId();
         if (restaurantId == null) { cb.onFailure("Not logged in"); return; }
@@ -84,8 +82,6 @@ public class OrderRepository {
     public void removeListener() {
         if (ordersListener != null) { ordersListener.remove(); ordersListener = null; }
     }
-
-    // ── Fetch single order + its items subcollection ─────────────────────────
 
     public void fetchOrderDetail(String orderId, OrderDetailCallback cb) {
         db.collection("orders").document(orderId)
@@ -125,8 +121,6 @@ public class OrderRepository {
           .addOnFailureListener(e -> cb.onFailure(e.getMessage()));
     }
 
-    // ── Update order status ───────────────────────────────────────────────────
-
     public void updateOrderStatus(String orderId, String newStatus, ActionCallback cb) {
         Map<String, Object> update = new HashMap<>();
         update.put("status",    newStatus);
@@ -137,8 +131,6 @@ public class OrderRepository {
           .addOnSuccessListener(v -> cb.onSuccess())
           .addOnFailureListener(e -> cb.onFailure(e.getMessage()));
     }
-
-    // ── Today's sales stats (for Home dashboard) ──────────────────────────────
 
     public void getTodayStats(String restaurantId, StatsCallback cb) {
         Calendar cal = Calendar.getInstance();

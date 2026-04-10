@@ -2,6 +2,8 @@ package com.example.bigaehrraidapp;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Handler;
+import android.os.Looper;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -38,8 +40,6 @@ public class AuthRepository {
         return instance;
     }
 
-    // ── Auth state ────────────────────────────────────────────────────────────
-
     public boolean isLoggedIn() {
         return auth.getCurrentUser() != null;
     }
@@ -66,18 +66,14 @@ public class AuthRepository {
         prefs.edit().remove(KEY_ROLE).remove(KEY_REMEMBER_ME).apply();
     }
 
-    // ── Register ──────────────────────────────────────────────────────────────
-
     public void register(String email, String password, String role, AuthCallback cb) {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnSuccessListener(result -> {
                 String uid = result.getUser().getUid();
 
-                // ── Notify the caller immediately — don't block on Firestore ──
                 saveRole(role);
                 cb.onSuccess();
 
-                // ── Write Firestore documents in the background ───────────────
                 Map<String, Object> userDoc = new HashMap<>();
                 userDoc.put("email", email);
                 userDoc.put("role",  role);
@@ -104,25 +100,34 @@ public class AuthRepository {
             .addOnFailureListener(e -> cb.onFailure(e.getMessage()));
     }
 
-    // ── Login ─────────────────────────────────────────────────────────────────
-
-    /**
-     * Logs in and validates that the user's stored role matches requiredRole.
-     * Pass null for requiredRole to skip role validation.
-     */
     public void login(String email, String password, String requiredRole,
                       boolean rememberMe, AuthCallback cb) {
+        boolean[] done = {false};
+        Handler handler = new Handler(Looper.getMainLooper());
+
+        Runnable timeout = () -> {
+            if (done[0]) return;
+            done[0] = true;
+            auth.signOut();
+            cb.onFailure("Connection timed out. Check your internet and try again.");
+        };
+        handler.postDelayed(timeout, 10000);
+
         auth.signInWithEmailAndPassword(email, password)
             .addOnSuccessListener(result -> {
+                if (done[0]) return;
+                handler.removeCallbacks(timeout);
+
                 setRememberMe(rememberMe);
                 String uid = result.getUser().getUid();
+
                 db.collection("users").document(uid).get()
                   .addOnSuccessListener(doc -> {
+                      if (done[0]) return;
+                      done[0] = true;
+
                       String storedRole = doc.exists() ? doc.getString("role") : null;
-
-                      // If Firestore returned nothing, fall back to cached role
                       if (storedRole == null) storedRole = prefs.getString(KEY_ROLE, requiredRole);
-
                       saveRole(storedRole);
 
                       if (requiredRole != null && !requiredRole.equals(storedRole)) {
@@ -134,23 +139,22 @@ public class AuthRepository {
                       cb.onSuccess();
                   })
                   .addOnFailureListener(e -> {
-                      // Firestore unreachable (offline) — use cached role or trust requiredRole
-                      String fallbackRole = prefs.getString(KEY_ROLE, requiredRole);
-                      saveRole(fallbackRole);
+                      if (done[0]) return;
+                      done[0] = true;
 
-                      if (requiredRole != null && !requiredRole.equals(fallbackRole)) {
-                          auth.signOut();
-                          prefs.edit().remove(KEY_ROLE).apply();
-                          cb.onFailure("This account is not registered as a " + requiredRole + ".");
-                          return;
-                      }
+                      String cachedRole = prefs.getString(KEY_ROLE, requiredRole);
+                      String role = cachedRole != null ? cachedRole : requiredRole;
+                      saveRole(role);
                       cb.onSuccess();
                   });
             })
-            .addOnFailureListener(e -> cb.onFailure(e.getMessage()));
+            .addOnFailureListener(e -> {
+                if (done[0]) return;
+                done[0] = true;
+                handler.removeCallbacks(timeout);
+                cb.onFailure(e.getMessage());
+            });
     }
-
-    // ── Private ───────────────────────────────────────────────────────────────
 
     private void saveRole(String role) {
         prefs.edit().putString(KEY_ROLE, role).apply();

@@ -40,10 +40,8 @@ public class ActivityAuthLogin extends AppCompatActivity {
         tvGoToRegister = findViewById(R.id.tvGoToRegister);
         cbRememberMe   = findViewById(R.id.cbRememberMe);
 
-        // Restore saved preference
         cbRememberMe.setChecked(authRepo.isRemembered());
 
-        // Show the right bottom section based on role
         LinearLayout layoutCreateAccount = findViewById(R.id.layoutCreateAccount);
         TextView     tvContactAdmin      = findViewById(R.id.tvContactAdmin);
         if ("restaurant".equals(role)) {
