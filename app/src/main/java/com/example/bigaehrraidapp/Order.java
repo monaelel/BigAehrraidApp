@@ -11,21 +11,13 @@ public class Order {
     public String restaurantId;
     public String customerId;
     public String customerName;
+    public String customerPhone;
+    public String customerAddress;
     public int    itemCount;
     public double totalAmount;
+    public double taxes;
     public String status;
     public long   createdAt;
 
-    // No-arg constructor required by Firestore
     public Order() {}
-
-    // Convenience constructor (used for local testing / manual creation)
-    public Order(String orderId, String customerName, int itemCount,
-                 double totalAmount, String status) {
-        this.orderId      = orderId;
-        this.customerName = customerName;
-        this.itemCount    = itemCount;
-        this.totalAmount  = totalAmount;
-        this.status       = status;
-    }
 }

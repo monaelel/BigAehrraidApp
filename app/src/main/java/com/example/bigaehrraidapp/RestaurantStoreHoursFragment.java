@@ -60,8 +60,6 @@ public class RestaurantStoreHoursFragment extends Fragment {
         return view;
     }
 
-    // ── Firebase ──────────────────────────────────────────────────────────────
-
     private void loadStoreHours() {
         restaurantRepo.loadStoreHours(new RestaurantRepository.Callback<Map<String, Object>>() {
             @Override
@@ -121,14 +119,10 @@ public class RestaurantStoreHoursFragment extends Fragment {
         });
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
-
     private Switch[]   getSwitches()       { return new Switch[]{switchMonday,switchTuesday,switchWednesday,switchThursday,switchFriday,switchSaturday,switchSunday}; }
     private View[]     getTimeRows()       { return new View[]{timeRowMonday,timeRowTuesday,timeRowWednesday,timeRowThursday,timeRowFriday,timeRowSaturday,timeRowSunday}; }
     private TextView[] getOpenTextViews()  { return new TextView[]{tvOpenMonday,tvOpenTuesday,tvOpenWednesday,tvOpenThursday,tvOpenFriday,tvOpenSaturday,tvOpenSunday}; }
     private TextView[] getCloseTextViews() { return new TextView[]{tvCloseMonday,tvCloseTuesday,tvCloseWednesday,tvCloseThursday,tvCloseFriday,tvCloseSaturday,tvCloseSunday}; }
-
-    // ── Existing bind/switch/timepicker methods (unchanged) ───────────────────
 
     private void bindViews(View view) {
         switchMonday    = view.findViewById(R.id.switchMonday);
