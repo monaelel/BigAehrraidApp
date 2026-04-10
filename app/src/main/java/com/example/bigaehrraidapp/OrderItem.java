@@ -7,4 +7,11 @@ public class OrderItem {
     public String imageUrl;
 
     public OrderItem() {}
+
+    public OrderItem(String name, int quantity, double price, String imageUrl) {
+        this.name     = name;
+        this.quantity = quantity;
+        this.price    = price;
+        this.imageUrl = imageUrl;
+    }
 }

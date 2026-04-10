@@ -26,6 +26,7 @@
 
     </FrameLayout>
 
+    <!-- Product name + qty x price -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -52,6 +53,7 @@
 
     </LinearLayout>
 
+    <!-- Total price for this line -->
     <TextView
         android:id="@+id/tvItemTotal"
         android:layout_width="wrap_content"

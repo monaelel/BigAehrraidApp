@@ -29,17 +29,11 @@ public class ProductRepository {
         return instance;
     }
 
-    private String productsPath() {
-        return "restaurants/" + authRepo.getCurrentUserId() + "/products";  // used for reference clarity
-    }
-
     private com.google.firebase.firestore.CollectionReference productsRef() {
         return db.collection("restaurants")
                  .document(authRepo.getCurrentUserId())
                  .collection("products");
     }
-
-    // ── CRUD ──────────────────────────────────────────────────────────────────
 
     public void loadProducts(Callback<List<Map<String, Object>>> cb) {
         productsRef().get()

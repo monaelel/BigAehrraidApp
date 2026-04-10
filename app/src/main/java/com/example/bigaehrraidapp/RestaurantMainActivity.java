@@ -3,6 +3,7 @@ package com.example.bigaehrraidapp;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
@@ -23,6 +24,18 @@ public class RestaurantMainActivity extends AppCompatActivity {
         loadFragment(new RestaurantHomeFragment());
         restaurantBottomNav.setSelectedItemId(R.id.nav_home);
 
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+                    getSupportFragmentManager().popBackStack();
+                } else {
+                    setEnabled(false);
+                    getOnBackPressedDispatcher().onBackPressed();
+                }
+            }
+        });
+
         restaurantBottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.nav_home) {
@@ -36,7 +49,6 @@ public class RestaurantMainActivity extends AppCompatActivity {
         });
     }
 
-    // Root-level navigation (no back stack) — used by bottom nav tabs
     private void loadFragment(Fragment fragment) {
         getSupportFragmentManager()
                 .popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
@@ -46,7 +58,6 @@ public class RestaurantMainActivity extends AppCompatActivity {
                 .commit();
     }
 
-    // Sub-navigation (with back stack) — used by in-tab sub-screens
     public void navigateTo(Fragment fragment) {
         getSupportFragmentManager()
                 .beginTransaction()
@@ -55,12 +66,4 @@ public class RestaurantMainActivity extends AppCompatActivity {
                 .commit();
     }
 
-    @Override
-    public void onBackPressed() {
-        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
-            getSupportFragmentManager().popBackStack();
-        } else {
-            super.onBackPressed();
-        }
-    }
 }

@@ -4,6 +4,7 @@
     android:layout_height="match_parent"
     android:background="#FFFFFF">
 
+    <!-- Scrollable content -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -16,6 +17,7 @@
             android:orientation="vertical"
             android:padding="16dp">
 
+            <!-- Back button -->
             <ImageView
                 android:id="@+id/btnDetailBack"
                 android:layout_width="32dp"
@@ -25,6 +27,7 @@
                 android:layout_marginBottom="12dp"
                 android:padding="4dp" />
 
+            <!-- Order ID + Status badge -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -57,6 +60,7 @@
 
             </LinearLayout>
 
+            <!-- Date / time -->
             <TextView
                 android:id="@+id/tvDetailDateTime"
                 android:layout_width="wrap_content"
@@ -66,6 +70,7 @@
                 android:textSize="13sp"
                 android:layout_marginBottom="16dp" />
 
+            <!-- Customer Information card -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -118,22 +123,26 @@
 
             </LinearLayout>
 
+            <!-- Items header -->
             <TextView
                 android:id="@+id/tvDetailItemsHeader"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:text="Items ([ total items count ])"
                 android:text="Items"
                 android:textColor="#000000"
                 android:textSize="15sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="10dp" />
 
+            <!-- Items list -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvDetailItems"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:nestedScrollingEnabled="false" />
 
+            <!-- Divider -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
@@ -141,6 +150,7 @@
                 android:layout_marginTop="12dp"
                 android:layout_marginBottom="12dp" />
 
+            <!-- Subtotal -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -159,12 +169,14 @@
                     android:id="@+id/tvDetailSubtotal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:text="$ [amount]"
                     android:text="$ 0.00"
                     android:textColor="#444444"
                     android:textSize="14sp" />
 
             </LinearLayout>
 
+            <!-- Taxes & Fees -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -183,18 +195,21 @@
                     android:id="@+id/tvDetailTaxes"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:text="$ [amount]"
                     android:text="$ 0.00"
                     android:textColor="#444444"
                     android:textSize="14sp" />
 
             </LinearLayout>
 
+            <!-- Divider -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="#000000"
                 android:layout_marginBottom="12dp" />
 
+            <!-- Totals -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -213,6 +228,7 @@
                     android:id="@+id/tvDetailTotal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:text="$ [amount]"
                     android:text="$ 0.00"
                     android:textColor="#000000"
                     android:textSize="16sp"
@@ -223,6 +239,7 @@
         </LinearLayout>
     </ScrollView>
 
+    <!-- Ready button pinned to bottom -->
     <Button
         android:id="@+id/btnDetailReady"
         android:layout_width="match_parent"
@@ -236,6 +253,7 @@
         android:textStyle="bold"
         android:visibility="gone" />
 
+    <!-- Loading indicator -->
     <ProgressBar
         android:id="@+id/progressBarDetail"
         android:layout_width="wrap_content"

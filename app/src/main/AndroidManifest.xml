@@ -43,6 +43,18 @@
             android:name=".OrderDetailActivity"
             android:exported="false" />
         <activity
+            android:name=".AddProductActivity"
+            android:exported="false" />
+        <activity
+            android:name=".EditProductActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ManageCategoriesActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AddEditCategoryActivity"
+            android:exported="false" />
+        <activity
             android:name=".SplashScreen"
             android:exported="true">
             <intent-filter>

@@ -28,6 +28,11 @@ public class OrderRepository {
         void onFailure(String error);
     }
 
+    public interface OrderDetailCallback {
+        void onSuccess(Order order, java.util.List<OrderItem> items);
+        void onFailure(String error);
+    }
+
     public interface StatsCallback {
         void onSuccess(double totalSales, int orderVolume, double ticketSize, float[] hourlyData);
         void onFailure(String error);
@@ -47,8 +52,6 @@ public class OrderRepository {
         if (instance == null) instance = new OrderRepository(authRepo);
         return instance;
     }
-
-    // ── Real-time orders listener ─────────────────────────────────────────────
 
     public void listenToOrders(OrdersCallback cb) {
         String restaurantId = authRepo.getCurrentUserId();
@@ -138,7 +141,45 @@ public class OrderRepository {
           .addOnFailureListener(e -> cb.onFailure(e.getMessage()));
     }
 
-    // ── Today's sales stats (for Home dashboard) ──────────────────────────────
+    public void fetchOrderDetail(String orderId, OrderDetailCallback cb) {
+        db.collection("orders").document(orderId)
+          .get()
+          .addOnSuccessListener(doc -> {
+              if (!doc.exists()) { cb.onFailure("Order not found"); return; }
+
+              Order o = new Order();
+              o.orderId         = doc.getId();
+              o.restaurantId    = doc.getString("restaurantId");
+              o.customerId      = doc.getString("customerId");
+              o.customerName    = doc.getString("customerName");
+              o.customerPhone   = doc.getString("customerPhone");
+              o.customerAddress = doc.getString("customerAddress");
+              o.status          = doc.getString("status");
+              o.totalAmount     = doc.getDouble("total")     != null ? doc.getDouble("total")     : 0;
+              o.taxes           = doc.getDouble("taxes")     != null ? doc.getDouble("taxes")     : 0;
+              o.itemCount       = doc.getLong("itemCount")   != null ? doc.getLong("itemCount").intValue() : 0;
+              o.createdAt       = doc.getLong("createdAt")   != null ? doc.getLong("createdAt")   : 0;
+
+              db.collection("orders").document(orderId).collection("items")
+                .get()
+                .addOnSuccessListener(itemSnaps -> {
+                    List<OrderItem> items = new ArrayList<>();
+                    for (QueryDocumentSnapshot itemDoc : itemSnaps) {
+                        OrderItem item = new OrderItem();
+                        item.name     = itemDoc.getString("name");
+                        item.quantity = itemDoc.getLong("quantity") != null
+                                        ? itemDoc.getLong("quantity").intValue() : 1;
+                        item.price    = itemDoc.getDouble("price") != null
+                                        ? itemDoc.getDouble("price") : 0;
+                        item.imageUrl = itemDoc.getString("imageUrl");
+                        items.add(item);
+                    }
+                    cb.onSuccess(o, items);
+                })
+                .addOnFailureListener(e -> cb.onFailure(e.getMessage()));
+          })
+          .addOnFailureListener(e -> cb.onFailure(e.getMessage()));
+    }
 
     public void getTodayStats(String restaurantId, StatsCallback cb) {
         Calendar cal = Calendar.getInstance();
