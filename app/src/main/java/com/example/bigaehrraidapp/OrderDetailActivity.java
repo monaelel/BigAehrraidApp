@@ -141,7 +141,6 @@ public class OrderDetailActivity extends AppCompatActivity {
         tvTaxes.setText(String.format(Locale.getDefault(), "$ %.2f", taxes));
         tvTotal.setText(String.format(Locale.getDefault(), "$ %.2f", total));
 
-        // Show Ready button only when order is in Preparing state
         if (Order.STATUS_PREPARING.equals(order.status)) {
             btnReady.setVisibility(View.VISIBLE);
         } else {

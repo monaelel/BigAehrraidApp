@@ -28,7 +28,6 @@ public class SplashScreen extends AppCompatActivity {
                 } else if ("customer".equals(role)) {
                     intent = new Intent(this, CustomerMainActivity.class);
                 } else {
-                    // Role unknown — send to login to re-authenticate
                     intent = new Intent(this, RoleSelectionActivity.class);
                 }
                 startActivity(intent);

@@ -20,7 +20,6 @@ public class CustomerMainActivity extends AppCompatActivity {
 
         customerBottomNav = findViewById(R.id.customerBottomNav);
 
-        // Load default fragment
         loadFragment(new CustomerDealsFragment());
         customerBottomNav.setSelectedItemId(R.id.nav_deals);
 

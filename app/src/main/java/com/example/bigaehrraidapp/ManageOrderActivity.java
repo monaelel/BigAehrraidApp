@@ -68,7 +68,6 @@ public class ManageOrderActivity extends AppCompatActivity {
 
             @Override
             public void onOrderClick(int position) {
-                // TODO: open OrderDetailActivity (separate branch)
                 Toast.makeText(ManageOrderActivity.this,
                         "Order #" + orders.get(position).orderId + " details — coming soon",
                         Toast.LENGTH_SHORT).show();
@@ -78,7 +77,6 @@ public class ManageOrderActivity extends AppCompatActivity {
         rvOrders.setLayoutManager(new LinearLayoutManager(this));
         rvOrders.setAdapter(adapter);
 
-        // Start real-time listener
         orderRepo.listenToOrders(new OrderRepository.OrdersCallback() {
             @Override
             public void onOrdersUpdated(List<Order> updated) {
@@ -99,9 +97,4 @@ public class ManageOrderActivity extends AppCompatActivity {
         orderRepo.removeListener();
     }
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        finish();
-    }
 }

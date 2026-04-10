@@ -6,7 +6,6 @@ public class OrderItem {
     public double price;
     public String imageUrl;
 
-    // No-arg constructor required by Firestore
     public OrderItem() {}
 
     public OrderItem(String name, int quantity, double price, String imageUrl) {

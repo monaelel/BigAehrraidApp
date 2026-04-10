@@ -50,7 +50,7 @@ public class RestaurantHomeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        loadTodayStats(); // refresh when returning from ManageOrder
+        loadTodayStats();
     }
 
     private void loadTodayStats() {
