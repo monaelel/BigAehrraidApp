@@ -15,9 +15,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class ActivityAuthLogin extends AppCompatActivity {
 
-    EditText      etEmail, etPassword;
-    Button        btnSignIn;
-    TextView      tvGoToRegister;
     String   role;
     EditText etEmail, etPassword;
     Button   btnSignIn;
