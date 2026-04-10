@@ -10,7 +10,6 @@ import android.view.View;
 
 public class SalesBarChartView extends View {
 
-    // Default hourly sales data — 24 values (hour 0 → hour 23)
     private float[] values = {
             2,  1,  1,  0,  0,  1,
             4,  8, 12, 18, 22, 28,

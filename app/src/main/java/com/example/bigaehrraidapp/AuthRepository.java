@@ -38,8 +38,6 @@ public class AuthRepository {
         return instance;
     }
 
-    // ── Auth state ────────────────────────────────────────────────────────────
-
     public boolean isLoggedIn() {
         return auth.getCurrentUser() != null;
     }
@@ -65,8 +63,6 @@ public class AuthRepository {
         auth.signOut();
         prefs.edit().remove(KEY_ROLE).remove(KEY_REMEMBER_ME).apply();
     }
-
-    // ── Register ──────────────────────────────────────────────────────────────
 
     public void register(String email, String password, String role, AuthCallback cb) {
         auth.createUserWithEmailAndPassword(email, password)
@@ -104,6 +100,7 @@ public class AuthRepository {
             .addOnFailureListener(e -> cb.onFailure(e.getMessage()));
     }
 
+    public void login(String email, String password, AuthCallback cb) {
     // ── Login ─────────────────────────────────────────────────────────────────
 
     /**
@@ -149,8 +146,6 @@ public class AuthRepository {
             })
             .addOnFailureListener(e -> cb.onFailure(e.getMessage()));
     }
-
-    // ── Private ───────────────────────────────────────────────────────────────
 
     private void saveRole(String role) {
         prefs.edit().putString(KEY_ROLE, role).apply();

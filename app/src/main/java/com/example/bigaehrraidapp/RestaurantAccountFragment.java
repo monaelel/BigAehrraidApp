@@ -62,7 +62,6 @@ public class RestaurantAccountFragment extends Fragment {
                 String phone = getStr(data, "phone");
                 String mail  = getStr(data, "mail");
 
-                // Address fields
                 Object addrObj = data.get("address");
                 String label = "", full = "";
                 if (addrObj instanceof Map) {

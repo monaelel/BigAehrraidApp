@@ -28,8 +28,6 @@ public class RestaurantRepository {
 
     private String uid() { return authRepo.getCurrentUserId(); }
 
-    // ── Profile ───────────────────────────────────────────────────────────────
-
     public void loadProfile(Callback<Map<String, Object>> cb) {
         db.collection("restaurants").document(uid()).get()
           .addOnSuccessListener(doc -> {
@@ -45,8 +43,6 @@ public class RestaurantRepository {
           .addOnSuccessListener(v  -> cb.onSuccess(null))
           .addOnFailureListener(e  -> cb.onFailure(e.getMessage()));
     }
-
-    // ── Store Hours ───────────────────────────────────────────────────────────
 
     @SuppressWarnings("unchecked")
     public void loadStoreHours(Callback<Map<String, Object>> cb) {
@@ -66,7 +62,6 @@ public class RestaurantRepository {
           .update("storeHours", hours)
           .addOnSuccessListener(v -> cb.onSuccess(null))
           .addOnFailureListener(e -> {
-              // If document field doesn't exist yet, use set with merge
               Map<String, Object> wrapper = new HashMap<>();
               wrapper.put("storeHours", hours);
               db.collection("restaurants").document(uid())

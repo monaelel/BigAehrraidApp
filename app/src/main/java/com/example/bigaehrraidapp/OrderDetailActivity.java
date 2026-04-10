@@ -1,5 +1,6 @@
 package com.example.bigaehrraidapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -140,6 +141,11 @@ public class OrderDetailActivity extends AppCompatActivity {
         tvTaxes.setText(String.format(Locale.getDefault(), "$ %.2f", taxes));
         tvTotal.setText(String.format(Locale.getDefault(), "$ %.2f", total));
 
+        if (Order.STATUS_PREPARING.equals(order.status)) {
+            btnReady.setVisibility(View.VISIBLE);
+        } else {
+            btnReady.setVisibility(View.GONE);
+        }
         btnReady.setVisibility(Order.STATUS_PREPARING.equals(order.status) ? View.VISIBLE : View.GONE);
     }
 }

@@ -19,7 +19,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
         void onAccept(int position);
         void onDecline(int position);
         void onReady(int position);
-        void onOrderClick(int position);  // for order details (to be implemented later)
+        void onOrderClick(int position);
     }
 
     private final List<Order> orders;
@@ -48,7 +48,6 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
         h.tvItemCount.setText(order.itemCount + " items");
         h.tvTotalAmount.setText(String.format(Locale.getDefault(), "$ %.2f", order.totalAmount));
 
-        // Hide all action views first
         h.layoutIncomingButtons.setVisibility(View.GONE);
         h.btnReady.setVisibility(View.GONE);
 
@@ -65,11 +64,9 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
                 break;
 
             case Order.STATUS_COMPLETED:
-                // No action buttons for completed orders
                 break;
         }
 
-        // Tap card to open order details (will be implemented on a separate branch)
         h.itemView.setOnClickListener(v -> listener.onOrderClick(h.getAdapterPosition()));
     }
 

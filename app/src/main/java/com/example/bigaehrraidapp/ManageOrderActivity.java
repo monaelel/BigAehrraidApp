@@ -72,6 +72,9 @@ public class ManageOrderActivity extends AppCompatActivity {
 
             @Override
             public void onOrderClick(int position) {
+                Toast.makeText(ManageOrderActivity.this,
+                        "Order #" + orders.get(position).orderId + " details — coming soon",
+                        Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(ManageOrderActivity.this, OrderDetailActivity.class);
                 intent.putExtra(OrderDetailActivity.EXTRA_ORDER_ID, orders.get(position).orderId);
                 startActivity(intent);
@@ -100,4 +103,5 @@ public class ManageOrderActivity extends AppCompatActivity {
         super.onDestroy();
         orderRepo.removeListener();
     }
+
 }
