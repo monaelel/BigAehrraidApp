@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class RoleSelectionActivity extends AppCompatActivity {
 
-    Button btnCustomer, btnRestaurant;
+    Button btnCustomer, btnRestaurant, btnGuest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -17,16 +17,25 @@ public class RoleSelectionActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_role_selection);
 
-        btnCustomer = findViewById(R.id.btnCustomer);
+        btnCustomer   = findViewById(R.id.btnCustomer);
         btnRestaurant = findViewById(R.id.btnRestaurant);
+        btnGuest      = findViewById(R.id.btnGuest);
 
         btnCustomer.setOnClickListener(v -> {
-            Intent intent = new Intent(RoleSelectionActivity.this, CustomerMainActivity.class);
+            Intent intent = new Intent(this, ActivityAuthLogin.class);
+            intent.putExtra("role", "customer");
             startActivity(intent);
         });
 
         btnRestaurant.setOnClickListener(v -> {
-            Intent intent = new Intent(RoleSelectionActivity.this, RestaurantMainActivity.class);
+            Intent intent = new Intent(this, ActivityAuthLogin.class);
+            intent.putExtra("role", "restaurant");
+            startActivity(intent);
+        });
+
+        btnGuest.setOnClickListener(v -> {
+            Intent intent = new Intent(this, CustomerMainActivity.class);
+            intent.putExtra("isGuest", true);
             startActivity(intent);
         });
     }

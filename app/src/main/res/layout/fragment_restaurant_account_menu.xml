@@ -33,6 +33,17 @@
         android:text="Manage Store Hours"
         android:textSize="16sp"
         android:backgroundTint="#000000"
-        android:textColor="#FFFFFF" />
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="16dp" />
+
+    <Button
+        android:id="@+id/btnLogout"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:text="Logout"
+        android:textSize="16sp"
+        android:backgroundTint="#FFFFFF"
+        android:textColor="#FF0000"
+        android:background="@drawable/shape_button_outline" />
 
 </LinearLayout>
