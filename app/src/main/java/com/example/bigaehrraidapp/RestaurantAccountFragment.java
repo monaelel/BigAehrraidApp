@@ -68,8 +68,8 @@ public class RestaurantAccountFragment extends Fragment {
                     @SuppressWarnings("unchecked")
                     Map<String, Object> addr = (Map<String, Object>) addrObj;
                     label = getStr(addr, "label");
-                    full  = getStr(addr, "street") + ", " + getStr(addr, "city")
-                          + ",\n" + getStr(addr, "province") + ", Canada, " + getStr(addr, "postalCode");
+                    full  = getStr(addr, "street") + ", " + getStr(addr, "city") + ", "
+                          + getStr(addr, "province") + " " + getStr(addr, "postalCode") + ", Canada";
                 }
 
                 tvRestaurantName.setText(name.isEmpty()  ? "[ Restaurant Name ]" : name);
