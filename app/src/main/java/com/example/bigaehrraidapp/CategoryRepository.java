@@ -40,10 +40,9 @@ public class CategoryRepository {
                 List<Category> list = new ArrayList<>();
                 for (QueryDocumentSnapshot doc : snapshots) {
                     Category cat = new Category();
-                    cat.id           = doc.getId();
-                    cat.name         = doc.getString("name");
-                    cat.canonicalTag = doc.getString("canonicalTag");
-                    Long so          = doc.getLong("sortOrder");
+                    cat.id        = doc.getId();
+                    cat.name      = doc.getString("name");
+                    Long so       = doc.getLong("sortOrder");
                     cat.sortOrder    = so != null ? so.intValue() : 0;
                     list.add(cat);
                 }

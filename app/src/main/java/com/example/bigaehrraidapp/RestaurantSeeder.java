@@ -25,7 +25,7 @@ public class RestaurantSeeder {
 
     private static final String PREFS_NAME   = "seeder_prefs";
     private static final String KEY_VERSION  = "seed_version";
-    private static final int    SEED_VERSION = 4;
+    private static final int    SEED_VERSION = 5;
 
     static final String DEFAULT_PASSWORD = "12345678";
 
@@ -38,35 +38,40 @@ public class RestaurantSeeder {
             "labelle@bigaehrraid.com",
             "+1 (514) 555-0101",
             "contact@labelle.ca",
-            "Plateau",       "4321 Rue Saint-Denis", "Montréal", "QC", "H2J 2K9"
+            "Plateau",       "4321 Rue Saint-Denis", "Montréal", "QC", "H2J 2K9",
+            45.5270, -73.5870
         ),
         restaurant(
             "Sakura Sushi",
             "sakura@bigaehrraid.com",
             "+1 (514) 555-0202",
             "hello@sakurasushi.ca",
-            "Downtown",      "1010 Rue Peel",         "Montréal", "QC", "H3C 0G1"
+            "Downtown",      "1010 Rue Peel",         "Montréal", "QC", "H3C 0G1",
+            45.4980, -73.5714
         ),
         restaurant(
             "The Burger Spot",
             "burgerspot@bigaehrraid.com",
             "+1 (514) 555-0303",
             "info@burgerspot.ca",
-            "Snowdon",       "5053 Ponsard Av",       "Montréal", "QC", "H3W 1A7"
+            "Snowdon",       "5053 Ponsard Av",       "Montréal", "QC", "H3W 1A7",
+            45.4902, -73.6201
         ),
         restaurant(
             "Nonna's Pizza",
             "nonna@bigaehrraid.com",
             "+1 (514) 555-0404",
             "order@nonnaspizza.ca",
-            "Mile End",      "50 Avenue Bernard",     "Montréal", "QC", "H2V 1V9"
+            "Mile End",      "50 Avenue Bernard",     "Montréal", "QC", "H2V 1V9",
+            45.5190, -73.6003
         ),
         restaurant(
             "Green Bowl",
             "greenbowl@bigaehrraid.com",
             "+1 (438) 555-0505",
             "support@greenbowl.ca",
-            "Griffintown",   "750 Rue William",       "Montréal", "QC", "H3C 1N9"
+            "Griffintown",   "750 Rue William",       "Montréal", "QC", "H3C 1N9",
+            45.4903, -73.5623
         )
     );
 
@@ -170,7 +175,8 @@ public class RestaurantSeeder {
                                                    String phone, String mail,
                                                    String neighbourhood,
                                                    String street, String city,
-                                                   String province, String postalCode) {
+                                                   String province, String postalCode,
+                                                   double latitude, double longitude) {
         Map<String, Object> address = new HashMap<>();
         address.put("label",      neighbourhood);
         address.put("street",     street);
@@ -179,11 +185,13 @@ public class RestaurantSeeder {
         address.put("postalCode", postalCode);
 
         Map<String, Object> data = new HashMap<>();
-        data.put("name",    name);
-        data.put("email",   email);
-        data.put("phone",   phone);
-        data.put("mail",    mail);
-        data.put("address", address);
+        data.put("name",      name);
+        data.put("email",     email);
+        data.put("phone",     phone);
+        data.put("mail",      mail);
+        data.put("address",   address);
+        data.put("latitude",  latitude);
+        data.put("longitude", longitude);
         return data;
     }
 

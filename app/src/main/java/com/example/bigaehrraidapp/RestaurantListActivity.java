@@ -1,5 +1,6 @@
 package com.example.bigaehrraidapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -36,6 +37,12 @@ public class RestaurantListActivity extends AppCompatActivity {
 
         List<Restaurant> restaurants = new ArrayList<>();
         RestaurantListAdapter adapter = new RestaurantListAdapter(restaurants);
+        adapter.setOnRestaurantClickListener(r -> {
+            Intent intent = new Intent(this, CustomerRestaurantMenuActivity.class);
+            intent.putExtra(CustomerRestaurantMenuActivity.EXTRA_RESTAURANT_ID, r.id);
+            intent.putExtra(CustomerRestaurantMenuActivity.EXTRA_RESTAURANT_NAME, r.name);
+            startActivity(intent);
+        });
         rvRestaurants.setLayoutManager(new LinearLayoutManager(this));
         rvRestaurants.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         rvRestaurants.setAdapter(adapter);

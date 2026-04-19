@@ -93,7 +93,7 @@
                 android:id="@+id/tvAddressName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Snowdon"
+                android:text=""
                 android:textColor="#000000"
                 android:textSize="15sp"
                 android:textStyle="bold" />
@@ -103,7 +103,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="5053 Ponsard Av, Montréal,\nQC, Canada, H3W 1A7"
+                android:text=""
                 android:textColor="#444444"
                 android:textSize="14sp" />
 
@@ -146,7 +146,7 @@
                     android:id="@+id/tvPhone"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="+1 (514) 831-3281"
+                    android:text=""
                     android:textColor="#444444"
                     android:textSize="15sp" />
 
@@ -178,7 +178,7 @@
                     android:id="@+id/tvMail"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Support@co.support.com"
+                    android:text=""
                     android:textColor="#444444"
                     android:textSize="15sp" />
 

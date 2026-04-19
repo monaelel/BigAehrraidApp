@@ -56,15 +56,13 @@ public class CustomerHomeRepository {
                             Log.d("HOME_DEBUG", "  -> categories found: " + catSnaps.size());
                             synchronized (deduped) {
                                 for (QueryDocumentSnapshot catDoc : catSnaps) {
-                                    String tag = catDoc.getString("canonicalTag");
-                                    if (tag == null) tag = catDoc.getString("name");
-                                    if (tag == null) continue;
-                                    String key = tag.toLowerCase().trim();
+                                    String name = catDoc.getString("name");
+                                    if (name == null) continue;
+                                    String key = name.toLowerCase().trim();
                                     if (!deduped.containsKey(key)) {
                                         Category cat = new Category();
                                         cat.id = catDoc.getId();
-                                        cat.name = catDoc.getString("name");
-                                        cat.canonicalTag = tag;
+                                        cat.name = name;
                                         Long so = catDoc.getLong("sortOrder");
                                         cat.sortOrder = so != null ? so.intValue() : 0;
                                         deduped.put(key, cat);
@@ -83,6 +81,29 @@ public class CustomerHomeRepository {
                             }
                         });
                 }
+            });
+    }
+
+    public void loadAllRestaurantsForMap(Callback<List<Restaurant>> cb) {
+        db.collection("restaurants").get()
+            .addOnFailureListener(e -> cb.onFailure(e.getMessage()))
+            .addOnSuccessListener(snaps -> {
+                List<Restaurant> result = new ArrayList<>();
+                for (QueryDocumentSnapshot doc : snaps) {
+                    Restaurant r = new Restaurant();
+                    r.id    = doc.getId();
+                    r.name  = doc.getString("name");
+                    r.email = doc.getString("email");
+                    r.phone = doc.getString("phone");
+                    Double lat = doc.getDouble("latitude");
+                    Double lng = doc.getDouble("longitude");
+                    if (lat != null && lng != null) {
+                        r.latitude  = lat;
+                        r.longitude = lng;
+                        result.add(r);
+                    }
+                }
+                cb.onSuccess(result);
             });
     }
 
@@ -112,10 +133,9 @@ public class CustomerHomeRepository {
                         .addOnSuccessListener(catSnaps -> {
                             boolean hasCategory = false;
                             for (QueryDocumentSnapshot catDoc : catSnaps) {
-                                String tag = catDoc.getString("canonicalTag");
-                                if (tag == null) tag = catDoc.getString("name");
-                                if (tag == null) continue;
-                                if (tag.toLowerCase().trim().equals(targetKey)) {
+                                String name = catDoc.getString("name");
+                                if (name == null) continue;
+                                if (name.toLowerCase().trim().equals(targetKey)) {
                                     hasCategory = true;
                                     break;
                                 }

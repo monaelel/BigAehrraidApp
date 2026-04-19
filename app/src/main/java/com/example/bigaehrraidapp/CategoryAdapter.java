@@ -40,7 +40,6 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Category cat = categories.get(position);
         holder.tvName.setText(cat.name);
-        holder.tvTag.setText(cat.canonicalTag != null ? cat.canonicalTag : "");
 
         holder.btnEdit.setOnClickListener(v -> {
             if (editListener != null) editListener.onEdit(cat);
@@ -59,13 +58,12 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvName, tvTag;
+        TextView tvName;
         Button btnEdit, btnDelete;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvName    = itemView.findViewById(R.id.tvCategoryName);
-            tvTag     = itemView.findViewById(R.id.tvCanonicalTag);
             btnEdit   = itemView.findViewById(R.id.btnEditCategory);
             btnDelete = itemView.findViewById(R.id.btnDeleteCategory);
         }

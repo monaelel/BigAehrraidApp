@@ -62,7 +62,7 @@ public class CustomerDealsFragment extends Fragment {
         rvCategories.setAdapter(adapter);
         adapter.setOnCategoryClickListener(cat -> {
             Intent intent = new Intent(requireActivity(), RestaurantListActivity.class);
-            intent.putExtra(RestaurantListActivity.EXTRA_CATEGORY_TAG, cat.canonicalTag);
+            intent.putExtra(RestaurantListActivity.EXTRA_CATEGORY_TAG, cat.name);
             intent.putExtra(RestaurantListActivity.EXTRA_CATEGORY_NAME, cat.name);
             startActivity(intent);
         });
@@ -72,7 +72,7 @@ public class CustomerDealsFragment extends Fragment {
             @Override
             public void onSuccess(List<Category> data) {
                 Log.d("HOME_DEBUG", "onSuccess — categories received: " + data.size());
-                for (Category c : data) Log.d("HOME_DEBUG", "  category: " + c.name + " / " + c.canonicalTag);
+                for (Category c : data) Log.d("HOME_DEBUG", "  category: " + c.name);
                 categories.addAll(data);
                 adapter.notifyDataSetChanged();
             }

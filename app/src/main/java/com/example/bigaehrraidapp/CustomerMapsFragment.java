@@ -11,6 +11,8 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,22 +26,29 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CustomerMapsFragment extends Fragment implements OnMapReadyCallback {
 
     private GoogleMap googleMap;
     private FusedLocationProviderClient fusedLocationClient;
     private EditText etMapSearch;
+    private LinearLayout restaurantCard;
+    private TextView tvCardName, tvCardAddress;
+
+    private final Map<String, Restaurant> markerRestaurantMap = new HashMap<>();
 
     private static final int LOCATION_PERMISSION_REQUEST = 2001;
-    private static final int MAP_AUTOCOMPLETE_REQUEST = 2002;
+    private static final int MAP_AUTOCOMPLETE_REQUEST    = 2002;
 
     @Nullable
     @Override
@@ -48,7 +57,10 @@ public class CustomerMapsFragment extends Fragment implements OnMapReadyCallback
         View view = inflater.inflate(R.layout.fragment_customer_maps, container, false);
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
-        etMapSearch = view.findViewById(R.id.etMapSearch);
+        etMapSearch    = view.findViewById(R.id.etMapSearch);
+        restaurantCard = view.findViewById(R.id.restaurantCard);
+        tvCardName     = view.findViewById(R.id.tvRestaurantCardName);
+        tvCardAddress  = view.findViewById(R.id.tvRestaurantCardAddress);
 
         etMapSearch.setOnClickListener(v -> launchPlaceSearch());
         etMapSearch.setOnEditorActionListener((v, actionId, event) -> {
@@ -78,10 +90,20 @@ public class CustomerMapsFragment extends Fragment implements OnMapReadyCallback
         googleMap = map;
         googleMap.getUiSettings().setZoomControlsEnabled(true);
         googleMap.getUiSettings().setCompassEnabled(true);
-        // Set default location (e.g., New York) in case location is not available
-        LatLng defaultLocation = new LatLng(40.7128, -74.0060); // New York
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, 10f));
+
+        googleMap.setOnMarkerClickListener(marker -> {
+            Restaurant r = markerRestaurantMap.get(marker.getId());
+            if (r != null) showRestaurantCard(r);
+            return false;
+        });
+
+        googleMap.setOnMapClickListener(latLng -> restaurantCard.setVisibility(View.GONE));
+
+        LatLng defaultLocation = new LatLng(45.5017, -73.5673);
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, 12f));
+
         enableMyLocation();
+        loadRestaurantMarkers();
     }
 
     private void enableMyLocation() {
@@ -102,10 +124,41 @@ public class CustomerMapsFragment extends Fragment implements OnMapReadyCallback
         fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
             if (location != null && googleMap != null) {
                 LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f));
-            } else {
-                // Default location already set in onMapReady
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13f));
             }
+        });
+    }
+
+    private void loadRestaurantMarkers() {
+        CustomerHomeRepository.getInstance().loadAllRestaurantsForMap(
+                new CustomerHomeRepository.Callback<List<Restaurant>>() {
+                    @Override
+                    public void onSuccess(List<Restaurant> data) {
+                        if (googleMap == null || !isAdded()) return;
+                        for (Restaurant r : data) {
+                            LatLng pos = new LatLng(r.latitude, r.longitude);
+                            Marker marker = googleMap.addMarker(
+                                    new MarkerOptions().position(pos).title(r.name));
+                            if (marker != null) {
+                                markerRestaurantMap.put(marker.getId(), r);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(String error) {}
+                });
+    }
+
+    private void showRestaurantCard(Restaurant r) {
+        tvCardName.setText(r.name != null ? r.name : "Restaurant");
+        tvCardAddress.setText(r.phone != null && !r.phone.isEmpty() ? r.phone : "");
+        restaurantCard.setVisibility(View.VISIBLE);
+        restaurantCard.setOnClickListener(v -> {
+            Intent intent = new Intent(requireContext(), CustomerRestaurantMenuActivity.class);
+            intent.putExtra(CustomerRestaurantMenuActivity.EXTRA_RESTAURANT_ID, r.id);
+            intent.putExtra(CustomerRestaurantMenuActivity.EXTRA_RESTAURANT_NAME, r.name);
+            startActivity(intent);
         });
     }
 
@@ -126,9 +179,7 @@ public class CustomerMapsFragment extends Fragment implements OnMapReadyCallback
 
                 LatLng latLng = place.getLatLng();
                 if (latLng != null && googleMap != null) {
-                    googleMap.clear();
-                    googleMap.addMarker(new MarkerOptions().position(latLng).title(place.getName()));
-                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f));
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14f));
                 }
 
                 InputMethodManager imm = (InputMethodManager)
