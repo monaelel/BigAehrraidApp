@@ -6,21 +6,23 @@ import android.util.Log;
 
 import org.json.JSONObject;
 
-import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import okhttp3.FormBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-
 /**
- * Creates a Stripe PaymentIntent by calling the Stripe API directly.
+ * Creates a Stripe PaymentIntent by calling the Stripe REST API directly.
+ *
+ * Uses plain HttpURLConnection — no extra library required.
  *
  * ⚠️  FOR TEST / PROTOTYPE USE ONLY.
- *     In production, move this call to your own backend server so the
+ *     In production, move this call to a backend server so the
  *     secret key is never shipped inside the APK.
  */
 public class PaymentIntentService {
@@ -35,47 +37,63 @@ public class PaymentIntentService {
 
     /**
      * Creates a PaymentIntent for the given amount (in cents) and currency.
-     * Calls back on the main thread.
+     * Result is delivered on the main thread.
      */
     public static void createPaymentIntent(long amountCents, String currency, Callback callback) {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Handler         handler  = new Handler(Looper.getMainLooper());
 
         executor.execute(() -> {
-            OkHttpClient client = new OkHttpClient();
+            HttpURLConnection conn = null;
+            try {
+                URL url = new URL(API_URL);
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Authorization",  "Bearer " + BuildConfig.STRIPE_SECRET_KEY);
+                conn.setRequestProperty("Content-Type",   "application/x-www-form-urlencoded");
+                conn.setConnectTimeout(15_000);
+                conn.setReadTimeout(15_000);
+                conn.setDoOutput(true);
 
-            RequestBody body = new FormBody.Builder()
-                    .add("amount",                    String.valueOf(amountCents))
-                    .add("currency",                  currency)
-                    .add("automatic_payment_methods[enabled]", "true")
-                    .build();
+                String body = "amount=" + amountCents
+                        + "&currency=" + currency
+                        + "&automatic_payment_methods%5Benabled%5D=true";
 
-            Request request = new Request.Builder()
-                    .url(API_URL)
-                    .addHeader("Authorization", "Bearer " + BuildConfig.STRIPE_SECRET_KEY)
-                    .post(body)
-                    .build();
+                try (OutputStream os = conn.getOutputStream()) {
+                    os.write(body.getBytes(StandardCharsets.UTF_8));
+                }
 
-            try (Response response = client.newCall(request).execute()) {
-                String responseBody = response.body() != null ? response.body().string() : "";
-                Log.d(TAG, "Stripe response (" + response.code() + "): " + responseBody);
+                int code = conn.getResponseCode();
+                InputStream is = code < 400 ? conn.getInputStream() : conn.getErrorStream();
 
-                if (!response.isSuccessful()) {
-                    JSONObject err = new JSONObject(responseBody);
-                    String msg = err.optJSONObject("error") != null
-                            ? err.getJSONObject("error").optString("message", "Unknown error")
-                            : "HTTP " + response.code();
-                    handler.post(() -> callback.onError(msg));
+                StringBuilder sb = new StringBuilder();
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) sb.append(line);
+                }
+                String responseBody = sb.toString();
+                Log.d(TAG, "Stripe response (" + code + "): " + responseBody);
+
+                JSONObject json = new JSONObject(responseBody);
+
+                if (code >= 400) {
+                    String msg = "HTTP " + code;
+                    if (json.has("error")) {
+                        msg = json.getJSONObject("error").optString("message", msg);
+                    }
+                    final String finalMsg = msg;
+                    handler.post(() -> callback.onError(finalMsg));
                     return;
                 }
 
-                JSONObject json         = new JSONObject(responseBody);
-                String     clientSecret = json.getString("client_secret");
+                String clientSecret = json.getString("client_secret");
                 handler.post(() -> callback.onSuccess(clientSecret));
 
-            } catch (IOException | org.json.JSONException e) {
+            } catch (Exception e) {
                 Log.e(TAG, "createPaymentIntent failed", e);
-                handler.post(() -> callback.onError(e.getMessage()));
+                handler.post(() -> callback.onError(e.getMessage() != null ? e.getMessage() : "Network error"));
+            } finally {
+                if (conn != null) conn.disconnect();
             }
         });
     }
