@@ -43,6 +43,26 @@ public class ActivityAuthLogin extends AppCompatActivity {
         // Restore saved preference
         cbRememberMe.setChecked(authRepo.isRemembered());
 
+        TextView tvForgotPassword = findViewById(R.id.tvForgotPassword);
+        tvForgotPassword.setOnClickListener(v -> {
+            String email = etEmail.getText().toString().trim();
+            if (email.isEmpty()) {
+                Toast.makeText(this, "Please enter your email to reset password", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            authRepo.resetPassword(email, new AuthRepository.AuthCallback() {
+                @Override
+                public void onSuccess() {
+                    Toast.makeText(ActivityAuthLogin.this, "Password reset email sent. Please check your inbox.", Toast.LENGTH_LONG).show();
+                }
+
+                @Override
+                public void onFailure(String error) {
+                    Toast.makeText(ActivityAuthLogin.this, "Failed: " + error, Toast.LENGTH_LONG).show();
+                }
+            });
+        });
+
         // Show the right bottom section based on role
         LinearLayout layoutCreateAccount = findViewById(R.id.layoutCreateAccount);
         TextView     tvContactAdmin      = findViewById(R.id.tvContactAdmin);
