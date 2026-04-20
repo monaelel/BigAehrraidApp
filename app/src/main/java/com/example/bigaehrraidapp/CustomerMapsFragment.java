@@ -43,7 +43,7 @@ public class CustomerMapsFragment extends Fragment implements OnMapReadyCallback
     private FusedLocationProviderClient fusedLocationClient;
     private EditText etMapSearch;
     private LinearLayout restaurantCard;
-    private TextView tvCardName, tvCardAddress;
+    private TextView tvCardName, tvCardAddress, tvCardRating;
 
     private final Map<String, Restaurant> markerRestaurantMap = new HashMap<>();
 
@@ -61,6 +61,7 @@ public class CustomerMapsFragment extends Fragment implements OnMapReadyCallback
         restaurantCard = view.findViewById(R.id.restaurantCard);
         tvCardName     = view.findViewById(R.id.tvRestaurantCardName);
         tvCardAddress  = view.findViewById(R.id.tvRestaurantCardAddress);
+        tvCardRating   = view.findViewById(R.id.tvRestaurantCardRating);
 
         etMapSearch.setOnClickListener(v -> launchPlaceSearch());
         etMapSearch.setOnEditorActionListener((v, actionId, event) -> {
@@ -152,6 +153,7 @@ public class CustomerMapsFragment extends Fragment implements OnMapReadyCallback
 
     private void showRestaurantCard(Restaurant r) {
         tvCardName.setText(r.name != null ? r.name : "Restaurant");
+        tvCardRating.setText("★★★★☆ 4.5");
         tvCardAddress.setText(r.phone != null && !r.phone.isEmpty() ? r.phone : "");
         restaurantCard.setVisibility(View.VISIBLE);
         restaurantCard.setOnClickListener(v -> {
