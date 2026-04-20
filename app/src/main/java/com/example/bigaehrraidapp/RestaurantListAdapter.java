@@ -12,10 +12,19 @@ import java.util.List;
 
 public class RestaurantListAdapter extends RecyclerView.Adapter<RestaurantListAdapter.VH> {
 
+    public interface OnRestaurantClickListener {
+        void onClick(Restaurant restaurant);
+    }
+
     private final List<Restaurant> restaurants;
+    private OnRestaurantClickListener clickListener;
 
     public RestaurantListAdapter(List<Restaurant> restaurants) {
         this.restaurants = restaurants;
+    }
+
+    public void setOnRestaurantClickListener(OnRestaurantClickListener listener) {
+        this.clickListener = listener;
     }
 
     @NonNull
@@ -33,6 +42,9 @@ public class RestaurantListAdapter extends RecyclerView.Adapter<RestaurantListAd
         holder.tvName.setText(name);
         holder.tvInitial.setText(name.substring(0, 1).toUpperCase());
         holder.tvPhone.setText(r.phone != null && !r.phone.isEmpty() ? r.phone : r.email != null ? r.email : "");
+        holder.itemView.setOnClickListener(v -> {
+            if (clickListener != null) clickListener.onClick(r);
+        });
     }
 
     @Override

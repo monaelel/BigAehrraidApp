@@ -38,13 +38,13 @@ public class ActivityAuthRegister extends AppCompatActivity {
         etConfirmPassword = findViewById(R.id.et_confirm_password);
 
         // Restaurants cannot self-register
-        if ("restaurant".equals(role)) {
-            Toast.makeText(this,
-                "Restaurant accounts are managed by admin. Please sign in with your provided credentials.",
-                Toast.LENGTH_LONG).show();
-            goToLogin();
-            return;
-        }
+//        if ("restaurant".equals(role)) {
+//            Toast.makeText(this,
+//                "Restaurant accounts are managed by admin. Please sign in with your provided credentials.",
+//                Toast.LENGTH_LONG).show();
+//            goToLogin();
+//            return;
+//        }
 
         tvGoToLogin.setOnClickListener(v -> goToLogin());
 

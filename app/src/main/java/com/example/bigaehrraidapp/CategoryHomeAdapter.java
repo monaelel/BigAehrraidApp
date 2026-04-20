@@ -69,7 +69,7 @@ public class CategoryHomeAdapter extends RecyclerView.Adapter<CategoryHomeAdapte
     @Override
     public void onBindViewHolder(@NonNull VH holder, int position) {
         Category cat = categories.get(position);
-        String tag = cat.canonicalTag != null ? cat.canonicalTag.toLowerCase().trim() : "";
+        String tag = cat.name != null ? cat.name.toLowerCase().trim() : "";
         String emoji = EMOJI_MAP.getOrDefault(tag, "🍽️");
         holder.tvEmoji.setText(emoji);
         holder.tvName.setText(cat.name);
