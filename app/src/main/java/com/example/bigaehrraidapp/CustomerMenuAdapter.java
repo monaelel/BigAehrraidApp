@@ -65,6 +65,7 @@ public class CustomerMenuAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     static class ProductVH extends RecyclerView.ViewHolder {
         final TextView tvName, tvPrice, tvAvailability;
         final ImageView ivImage;
+        final android.widget.Button btnAddToCart;
 
         ProductVH(@NonNull View itemView) {
             super(itemView);
@@ -72,6 +73,7 @@ public class CustomerMenuAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             tvPrice        = itemView.findViewById(R.id.tvProductPrice);
             tvAvailability = itemView.findViewById(R.id.tvProductAvailability);
             ivImage        = itemView.findViewById(R.id.ivProductImage);
+            btnAddToCart   = itemView.findViewById(R.id.btnAddToCart);
         }
 
         void bind(Map<String, Object> product) {
@@ -94,6 +96,15 @@ public class CustomerMenuAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             } else {
                 ivImage.setImageResource(android.R.color.darker_gray);
             }
+
+            btnAddToCart.setOnClickListener(v -> {
+                if (available) {
+                    CartManager.getInstance().addItem((String) product.get("productId"), name, price, imageUrl);
+                    android.widget.Toast.makeText(itemView.getContext(), name + " added to cart", android.widget.Toast.LENGTH_SHORT).show();
+                } else {
+                    android.widget.Toast.makeText(itemView.getContext(), name + " is not available", android.widget.Toast.LENGTH_SHORT).show();
+                }
+            });
         }
     }
 }

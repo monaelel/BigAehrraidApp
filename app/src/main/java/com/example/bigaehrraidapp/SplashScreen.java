@@ -37,7 +37,7 @@ public class SplashScreen extends AppCompatActivity {
                 }
                 startActivity(intent);
             } else {
-                startActivity(new Intent(this, RoleSelectionActivity.class));
+                startActivity(new Intent(this, CustomerMainActivity.class));
             }
             finish();
         }, SPLASH_TIME);

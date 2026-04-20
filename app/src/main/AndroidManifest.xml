@@ -12,17 +12,36 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BigAehrraidApp">
         <activity
-            android:name=".LoginActivity"
-            android:exported="false" />
-        <activity
-            android:name=".MainActivity"
+            android:name=".SplashScreen"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".MainActivity" android:exported="false" />
+        <activity android:name=".CheckoutActivity" android:exported="false" />
+        <activity android:name=".CartActivity" android:exported="false" />
+        <activity android:name=".LoginActivity" android:exported="false" />
+        <activity android:name=".AccountActivity" android:exported="false" />
+        <activity android:name=".ActivityAuthLogin" android:exported="false" />
+        <activity android:name=".ActivityAuthRegister" android:exported="false" />
+        <activity android:name=".AddEditCategoryActivity" android:exported="false" />
+        <activity android:name=".AddProductActivity" android:exported="false" />
+        <activity android:name=".CustomerMainActivity" android:exported="false" />
+        <activity android:name=".CustomerRestaurantMenuActivity" android:exported="false" />
+        <activity android:name=".EditProductActivity" android:exported="false" />
+        <activity android:name=".HomepageActivity" android:exported="false" />
+        <activity android:name=".ManageCategoriesActivity" android:exported="false" />
+        <activity android:name=".ManageOrderActivity" android:exported="false" />
+        <activity android:name=".OrderDetailActivity" android:exported="false" />
+        <activity android:name=".RestaurantListActivity" android:exported="false" />
+        <activity android:name=".RestaurantMainActivity" android:exported="false" />
+        <activity android:name=".RoleSelectionActivity" android:exported="false" />
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${MAPS_API_KEY}" />
     </application>
 
 </manifest>

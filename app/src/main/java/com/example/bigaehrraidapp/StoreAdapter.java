@@ -138,7 +138,7 @@ public class StoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 btnToggle.setTextColor(0xFF000000);
                 btnToggle.setBackgroundResource(R.drawable.shape_btn_outlined);
             } else {
-                btnToggle.setText("Not Available");
+                btnToggle.setText("Unavailable");
                 btnToggle.setTextColor(0xFFFFFFFF);
                 btnToggle.setBackgroundResource(R.drawable.shape_btn_filled_dark);
             }

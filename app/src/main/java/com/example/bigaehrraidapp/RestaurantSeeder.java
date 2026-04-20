@@ -27,7 +27,7 @@ public class RestaurantSeeder {
 
     private static final String PREFS_NAME   = "seeder_prefs";
     private static final String KEY_VERSION  = "seed_version";
-    private static final int    SEED_VERSION = 7;
+    private static final int    SEED_VERSION = 8;
 
     static final String DEFAULT_PASSWORD = "12345678";
 
@@ -183,8 +183,8 @@ public class RestaurantSeeder {
                 restaurantDoc.put("city", "");
                 restaurantDoc.put("province", "");
                 restaurantDoc.put("postalCode", "");
-                restaurantDoc.put("lat", 0.0);
-                restaurantDoc.put("lng", 0.0);
+                restaurantDoc.put("latitude", 0.0);
+                restaurantDoc.put("longitude", 0.0);
                 db.collection("restaurants").document(uid)
                   .set(restaurantDoc, SetOptions.merge());
             }
@@ -279,8 +279,8 @@ public class RestaurantSeeder {
         data.put("city",        city);
         data.put("province",    province);
         data.put("postalCode",  postalCode);
-        data.put("lat",         latitude);
-        data.put("lng",         longitude);
+        data.put("latitude",         latitude);
+        data.put("longitude",         longitude);
         return data;
     }
 

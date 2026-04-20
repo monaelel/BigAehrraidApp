@@ -10,7 +10,10 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:padding="16dp">
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="56dp"
+        android:paddingBottom="16dp">
 
         <ImageView
             android:id="@+id/btnBack"
