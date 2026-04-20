@@ -14,6 +14,10 @@ public class App extends Application {
         if (!Places.isInitialized()) {
             Places.initialize(getApplicationContext(), BuildConfig.MAPS_API_KEY);
         }
+        com.stripe.android.PaymentConfiguration.init(
+                getApplicationContext(),
+                "pk_test_51TOFvo8atuREOtKl9JXwXAwP3zTenyXKPdVQkncs2vWWvqbFEoviLjKbT5hgjJsmnV5aa9N5JAjYrWUAbAqvxa5H00PrfzsJ3g"
+        );
         // Log all restaurants to Logcat for debugging
         RestaurantMigrationHelper.logAllRestaurants();
     }

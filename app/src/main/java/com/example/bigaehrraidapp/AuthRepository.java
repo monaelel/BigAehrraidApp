@@ -157,4 +157,10 @@ public class AuthRepository {
     private void saveRole(String role) {
         prefs.edit().putString(KEY_ROLE, role).apply();
     }
+
+    public void resetPassword(String email, AuthCallback cb) {
+        auth.sendPasswordResetEmail(email)
+            .addOnSuccessListener(aVoid -> cb.onSuccess())
+            .addOnFailureListener(e -> cb.onFailure(e.getMessage()));
+    }
 }
