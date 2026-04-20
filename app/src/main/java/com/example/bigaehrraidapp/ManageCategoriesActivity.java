@@ -68,7 +68,6 @@ public class ManageCategoriesActivity extends AppCompatActivity {
         Intent intent = new Intent(this, AddEditCategoryActivity.class);
         intent.putExtra(AddEditCategoryActivity.EXTRA_CATEGORY_ID,         category.id);
         intent.putExtra(AddEditCategoryActivity.EXTRA_CATEGORY_NAME,       category.name);
-        intent.putExtra(AddEditCategoryActivity.EXTRA_CATEGORY_CANONICAL,  category.canonicalTag);
         intent.putExtra(AddEditCategoryActivity.EXTRA_CATEGORY_SORT_ORDER, category.sortOrder);
         formLauncher.launch(intent);
     }

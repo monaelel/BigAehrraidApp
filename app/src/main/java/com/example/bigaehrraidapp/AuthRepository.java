@@ -92,6 +92,14 @@ public class AuthRepository {
                             restaurantDoc.put("email", email);
                             restaurantDoc.put("name",  "");
                             restaurantDoc.put("phone", "");
+                            restaurantDoc.put("mail", email); // Use email as default mail
+                            restaurantDoc.put("neighborhood", "");
+                            restaurantDoc.put("street", "");
+                            restaurantDoc.put("city", "");
+                            restaurantDoc.put("province", "");
+                            restaurantDoc.put("postalCode", "");
+                            restaurantDoc.put("lat", 0.0);
+                            restaurantDoc.put("lng", 0.0);
                             db.collection("restaurants").document(uid).set(restaurantDoc);
                         }
                     });
