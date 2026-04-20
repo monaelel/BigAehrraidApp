@@ -55,9 +55,10 @@ public class PaymentIntentService {
                 conn.setReadTimeout(15_000);
                 conn.setDoOutput(true);
 
+                // Use card-only to avoid redirect-based methods that hang without a returnUrl
                 String body = "amount=" + amountCents
                         + "&currency=" + currency
-                        + "&automatic_payment_methods%5Benabled%5D=true";
+                        + "&payment_method_types%5B%5D=card";
 
                 try (OutputStream os = conn.getOutputStream()) {
                     os.write(body.getBytes(StandardCharsets.UTF_8));
