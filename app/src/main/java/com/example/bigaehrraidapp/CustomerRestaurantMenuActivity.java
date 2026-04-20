@@ -17,7 +17,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CustomerRestaurantMenuActivity extends AppCompatActivity {
+public class CustomerRestaurantMenuActivity extends AppCompatActivity implements CartManager.OnCartChangeListener {
 
     public static final String EXTRA_RESTAURANT_ID   = "restaurant_id";
     public static final String EXTRA_RESTAURANT_NAME = "restaurant_name";
@@ -26,6 +26,7 @@ public class CustomerRestaurantMenuActivity extends AppCompatActivity {
     private CustomerMenuAdapter adapter;
     private ProgressBar progressBar;
     private TextView tvEmpty;
+    private android.widget.Button btnViewCart;
 
     private List<Category> categories = new ArrayList<>();
     private List<Map<String, Object>> products = new ArrayList<>();
@@ -42,6 +43,7 @@ public class CustomerRestaurantMenuActivity extends AppCompatActivity {
         progressBar     = findViewById(R.id.progressBar);
         tvEmpty         = findViewById(R.id.tvEmpty);
         RecyclerView rv = findViewById(R.id.rvMenu);
+        btnViewCart     = findViewById(R.id.btnViewCart);
 
         tvName.setText(restaurantName != null ? restaurantName : "Menu");
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
@@ -50,6 +52,14 @@ public class CustomerRestaurantMenuActivity extends AppCompatActivity {
         rv.setLayoutManager(new LinearLayoutManager(this));
         rv.setAdapter(adapter);
 
+        btnViewCart.setOnClickListener(v -> {
+            android.content.Intent intent = new android.content.Intent(this, CartActivity.class);
+            startActivity(intent);
+        });
+
+        CartManager.getInstance().setListener(this);
+        updateCartTotal();
+
         if (restaurantId == null) {
             tvEmpty.setVisibility(View.VISIBLE);
             return;
@@ -57,6 +67,27 @@ public class CustomerRestaurantMenuActivity extends AppCompatActivity {
 
         progressBar.setVisibility(View.VISIBLE);
         loadCategories(restaurantId);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        CartManager.getInstance().setListener(null);
+    }
+
+    @Override
+    public void onCartChanged() {
+        updateCartTotal();
+    }
+
+    private void updateCartTotal() {
+        double total = CartManager.getInstance().getSubtotal();
+        btnViewCart.setText(String.format(java.util.Locale.getDefault(), "View Cart ($%.2f)", total));
+        if (total > 0) {
+            btnViewCart.setVisibility(View.VISIBLE);
+        } else {
+            btnViewCart.setVisibility(View.GONE);
+        }
     }
 
     private void loadCategories(String restaurantId) {

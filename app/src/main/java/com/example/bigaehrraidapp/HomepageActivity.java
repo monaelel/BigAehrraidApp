@@ -16,5 +16,13 @@ public class HomepageActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_homepage);
 
+        findViewById(R.id.btnHomeLogin).setOnClickListener(v -> 
+            startActivity(new android.content.Intent(this, RoleSelectionActivity.class))
+        );
+
+        findViewById(R.id.btnHomeRegister).setOnClickListener(v -> 
+            startActivity(new android.content.Intent(this, RoleSelectionActivity.class))
+        );
+
     }
 }

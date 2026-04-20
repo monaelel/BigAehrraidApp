@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F5F5F5">
+
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="#FFFFFF"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="16dp"
+        android:paddingTop="56dp"
+        android:gravity="center_vertical"
+        android:elevation="4dp">
+
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_chevron_down"
+            android:rotation="90"
+            android:tint="#000000"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Checkout"
+            android:textSize="20sp"
+            android:textColor="#000000"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginEnd="24dp" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Order Summary Card -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/shape_card_rounded"
+                android:padding="16dp"
+                android:layout_marginBottom="24dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Order Summary"
+                    android:textSize="18sp"
+                    android:textColor="#000000"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="16dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Subtotal"
+                        android:textColor="#666666"/>
+                    <TextView
+                        android:id="@+id/tvSubtotal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="$24.50"
+                        android:textColor="#000000"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Taxes &amp; Fees"
+                        android:textColor="#666666"/>
+                    <TextView
+                        android:id="@+id/tvTaxes"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="$3.20"
+                        android:textColor="#000000"/>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#E0E0E0"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Total"
+                        android:textStyle="bold"
+                        android:textSize="18sp"
+                        android:textColor="#000000"/>
+                    <TextView
+                        android:id="@+id/tvTotal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="$27.70"
+                        android:textStyle="bold"
+                        android:textSize="18sp"
+                        android:textColor="#DB600F"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Payment Card -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/shape_card_rounded"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Payment Method"
+                    android:textSize="18sp"
+                    android:textColor="#000000"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="16dp"/>
+
+                <!-- Stripe Card Input Widget -->
+                <com.stripe.android.view.CardInputWidget
+                    android:id="@+id/cardInputWidget"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Test Mode: Use 4242 4242 4242 4242"
+                    android:textSize="12sp"
+                    android:textColor="#888888"
+                    android:layout_marginBottom="16dp"/>
+
+                <Button
+                    android:id="@+id/btnPay"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:text="Pay $27.70"
+                    android:textSize="16sp"
+                    android:backgroundTint="#000000"
+                    android:textColor="#FFFFFF" />
+
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

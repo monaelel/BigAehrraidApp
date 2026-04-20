@@ -7,6 +7,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:background="#FFFFFF"
@@ -14,8 +15,7 @@
         android:paddingStart="4dp"
         android:paddingEnd="16dp"
         android:paddingTop="56dp"
-        android:paddingBottom="12dp"
-        android:layout_height="wrap_content">
+        android:paddingBottom="12dp">
 
         <ImageButton
             android:id="@+id/btnBack"
@@ -26,52 +26,74 @@
             android:contentDescription="Back" />
 
         <TextView
-            android:id="@+id/tvRestaurantName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:text="Your Cart"
             android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="#1A1A1A" />
 
     </LinearLayout>
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="48dp"
-        android:visibility="gone" />
-
     <TextView
-        android:id="@+id/tvEmpty"
+        android:id="@+id/tvEmptyCart"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="48dp"
-        android:text="No menu items available"
-        android:textSize="15sp"
+        android:text="Your cart is empty"
+        android:textSize="16sp"
         android:textColor="#888888"
         android:visibility="gone" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvMenu"
+        android:id="@+id/rvCartItems"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="16dp"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:clipToPadding="false" />
 
-    <Button
-        android:id="@+id/btnViewCart"
+    <LinearLayout
+        android:id="@+id/layoutBottom"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_margin="16dp"
-        android:text="View Cart ($0.00)"
-        android:textColor="#FFFFFF"
-        android:backgroundTint="#000000" />
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#FFFFFF"
+        android:padding="16dp"
+        android:elevation="8dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Subtotal"
+                android:textColor="#666666"/>
+            <TextView
+                android:id="@+id/tvCartSubtotal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="$0.00"
+                android:textColor="#000000"/>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnProceedToCheckout"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="Proceed to Checkout"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#000000"
+            android:layout_marginTop="8dp"/>
+
+    </LinearLayout>
 
 </LinearLayout>
