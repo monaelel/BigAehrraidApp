@@ -67,6 +67,9 @@
             android:name=".CustomerRestaurantMenuActivity"
             android:exported="false" />
         <activity
+            android:name=".CheckoutActivity"
+            android:exported="false" />
+        <activity
             android:name=".SplashScreen"
             android:exported="true">
             <intent-filter>

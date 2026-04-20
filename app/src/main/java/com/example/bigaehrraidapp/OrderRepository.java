@@ -140,6 +140,55 @@ public class OrderRepository {
 
 
 
+    // ── Place a new order (called after successful Stripe payment) ────────────
+
+    public void placeOrder(String restaurantId,
+                           java.util.List<CartItem> cartItems,
+                           double subtotal,
+                           double taxes,
+                           ActionCallback cb) {
+
+        String customerId = authRepo.getCurrentUserId();
+        if (customerId == null) { cb.onFailure("Not logged in"); return; }
+
+        double total     = subtotal + taxes;
+        int    itemCount = 0;
+        for (CartItem ci : cartItems) itemCount += ci.quantity;
+
+        Map<String, Object> orderData = new HashMap<>();
+        orderData.put("restaurantId",  restaurantId);
+        orderData.put("customerId",    customerId);
+        orderData.put("status",        Order.STATUS_INCOMING);
+        orderData.put("subtotal",      subtotal);
+        orderData.put("taxes",         taxes);
+        orderData.put("total",         total);
+        orderData.put("itemCount",     itemCount);
+        orderData.put("paymentStatus", "paid");
+        orderData.put("createdAt",     System.currentTimeMillis());
+
+        com.google.firebase.firestore.DocumentReference orderRef =
+                db.collection("orders").document();
+
+        // Write order document then items subcollection in a batch
+        com.google.firebase.firestore.WriteBatch batch = db.batch();
+        batch.set(orderRef, orderData);
+
+        for (CartItem ci : cartItems) {
+            Map<String, Object> itemData = new HashMap<>();
+            itemData.put("name",     ci.name);
+            itemData.put("imageUrl", ci.imageUrl != null ? ci.imageUrl : "");
+            itemData.put("price",    ci.price);
+            itemData.put("quantity", ci.quantity);
+            com.google.firebase.firestore.DocumentReference itemRef =
+                    orderRef.collection("items").document();
+            batch.set(itemRef, itemData);
+        }
+
+        batch.commit()
+             .addOnSuccessListener(v -> cb.onSuccess())
+             .addOnFailureListener(e -> cb.onFailure(e.getMessage()));
+    }
+
     public void getTodayStats(String restaurantId, StatsCallback cb) {
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.HOUR_OF_DAY, 0);

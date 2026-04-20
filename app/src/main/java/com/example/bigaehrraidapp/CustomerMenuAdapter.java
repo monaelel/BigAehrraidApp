@@ -3,6 +3,7 @@ package com.example.bigaehrraidapp;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -17,10 +18,21 @@ import java.util.Map;
 
 public class CustomerMenuAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private final List<StoreItem> items;
+    public interface OnAddToCart {
+        void onAdd(Map<String, Object> product);
+    }
 
+    private final List<StoreItem> items;
+    private final OnAddToCart     addToCartListener;
+
+    public CustomerMenuAdapter(List<StoreItem> items, OnAddToCart addToCartListener) {
+        this.items             = items;
+        this.addToCartListener = addToCartListener;
+    }
+
+    /** Backward-compatible constructor (no add-to-cart) */
     public CustomerMenuAdapter(List<StoreItem> items) {
-        this.items = items;
+        this(items, null);
     }
 
     @Override
@@ -49,9 +61,11 @@ public class CustomerMenuAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         if (item.type == StoreItem.TYPE_HEADER) {
             ((HeaderVH) holder).bind(item.headerName);
         } else {
-            ((ProductVH) holder).bind(item.product);
+            ((ProductVH) holder).bind(item.product, addToCartListener);
         }
     }
+
+    // ── ViewHolders ───────────────────────────────────────────────────────────
 
     static class HeaderVH extends RecyclerView.ViewHolder {
         final TextView tvHeader;
@@ -63,8 +77,9 @@ public class CustomerMenuAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     }
 
     static class ProductVH extends RecyclerView.ViewHolder {
-        final TextView tvName, tvPrice, tvAvailability;
+        final TextView  tvName, tvPrice, tvAvailability;
         final ImageView ivImage;
+        final Button    btnAddToCart;
 
         ProductVH(@NonNull View itemView) {
             super(itemView);
@@ -72,15 +87,16 @@ public class CustomerMenuAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             tvPrice        = itemView.findViewById(R.id.tvProductPrice);
             tvAvailability = itemView.findViewById(R.id.tvProductAvailability);
             ivImage        = itemView.findViewById(R.id.ivProductImage);
+            btnAddToCart   = itemView.findViewById(R.id.btnAddToCart);
         }
 
-        void bind(Map<String, Object> product) {
-            String name     = (String) product.getOrDefault("name", "Unnamed");
-            String imageUrl = (String) product.get("imageUrl");
-            Object priceObj = product.get("price");
-            Object availObj = product.get("available");
+        void bind(Map<String, Object> product, OnAddToCart listener) {
+            String  name      = (String) product.getOrDefault("name", "Unnamed");
+            String  imageUrl  = (String) product.get("imageUrl");
+            Object  priceObj  = product.get("price");
+            Object  availObj  = product.get("available");
 
-            double price    = priceObj instanceof Number ? ((Number) priceObj).doubleValue() : 0;
+            double  price     = priceObj instanceof Number ? ((Number) priceObj).doubleValue() : 0;
             boolean available = !Boolean.FALSE.equals(availObj);
 
             tvName.setText(name);
@@ -90,9 +106,17 @@ public class CustomerMenuAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
             if (imageUrl != null && !imageUrl.isEmpty()) {
                 Glide.with(itemView.getContext()).load(imageUrl).centerCrop()
-                        .placeholder(android.R.color.darker_gray).into(ivImage);
+                     .placeholder(android.R.color.darker_gray).into(ivImage);
             } else {
                 ivImage.setImageResource(android.R.color.darker_gray);
+            }
+
+            // Add-to-cart button
+            if (listener != null && available) {
+                btnAddToCart.setVisibility(View.VISIBLE);
+                btnAddToCart.setOnClickListener(v -> listener.onAdd(product));
+            } else {
+                btnAddToCart.setVisibility(View.GONE);
             }
         }
     }

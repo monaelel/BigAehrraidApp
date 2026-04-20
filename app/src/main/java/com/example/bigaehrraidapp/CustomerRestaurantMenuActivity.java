@@ -1,20 +1,24 @@
 package com.example.bigaehrraidapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class CustomerRestaurantMenuActivity extends AppCompatActivity {
@@ -23,30 +27,59 @@ public class CustomerRestaurantMenuActivity extends AppCompatActivity {
     public static final String EXTRA_RESTAURANT_NAME = "restaurant_name";
 
     private final List<StoreItem> storeItems = new ArrayList<>();
-    private CustomerMenuAdapter adapter;
-    private ProgressBar progressBar;
-    private TextView tvEmpty;
+    private CustomerMenuAdapter   adapter;
+    private ProgressBar           progressBar;
+    private TextView              tvEmpty;
+    private ExtendedFloatingActionButton fabCart;
 
-    private List<Category> categories = new ArrayList<>();
-    private List<Map<String, Object>> products = new ArrayList<>();
+    private List<Category>             categories = new ArrayList<>();
+    private List<Map<String, Object>>  products   = new ArrayList<>();
+
+    private String restaurantId;
+    private String restaurantName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_customer_restaurant_menu);
 
-        String restaurantId   = getIntent().getStringExtra(EXTRA_RESTAURANT_ID);
-        String restaurantName = getIntent().getStringExtra(EXTRA_RESTAURANT_NAME);
+        restaurantId   = getIntent().getStringExtra(EXTRA_RESTAURANT_ID);
+        restaurantName = getIntent().getStringExtra(EXTRA_RESTAURANT_NAME);
 
         TextView tvName = findViewById(R.id.tvRestaurantName);
         progressBar     = findViewById(R.id.progressBar);
         tvEmpty         = findViewById(R.id.tvEmpty);
+        fabCart         = findViewById(R.id.fabCart);
         RecyclerView rv = findViewById(R.id.rvMenu);
 
         tvName.setText(restaurantName != null ? restaurantName : "Menu");
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
 
-        adapter = new CustomerMenuAdapter(storeItems);
+        // Tell CartManager which restaurant we're in (clears cart if switching)
+        CartManager cart = CartManager.getInstance();
+        cart.setRestaurant(restaurantId, restaurantName);
+
+        // FAB
+        updateFab(cart.getTotalItemCount());
+        cart.setOnCartChangedListener(count -> updateFab(count));
+        fabCart.setOnClickListener(v -> {
+            startActivity(new Intent(this, CheckoutActivity.class));
+        });
+
+        // Adapter with add-to-cart callback
+        adapter = new CustomerMenuAdapter(storeItems, product -> {
+            String  pId    = (String) product.get("productId");
+            String  pName  = (String) product.getOrDefault("name", "Item");
+            String  pImg   = (String) product.get("imageUrl");
+            Object  prObj  = product.get("price");
+            double  price  = prObj instanceof Number ? ((Number) prObj).doubleValue() : 0;
+
+            CartItem item = new CartItem(pId, pName, pImg, price);
+            CartManager.getInstance().addItem(item);
+            Toast.makeText(this,
+                    pName + " added to cart", Toast.LENGTH_SHORT).show();
+        });
+
         rv.setLayoutManager(new LinearLayoutManager(this));
         rv.setAdapter(adapter);
 
@@ -58,6 +91,35 @@ public class CustomerRestaurantMenuActivity extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
         loadCategories(restaurantId);
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Re-register listener in case it was cleared
+        CartManager cart = CartManager.getInstance();
+        cart.setOnCartChangedListener(count -> updateFab(count));
+        updateFab(cart.getTotalItemCount());
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        CartManager.getInstance().setOnCartChangedListener(null);
+    }
+
+    // ── FAB ───────────────────────────────────────────────────────────────────
+
+    private void updateFab(int itemCount) {
+        if (itemCount > 0) {
+            fabCart.setVisibility(View.VISIBLE);
+            fabCart.setText(String.format(Locale.getDefault(),
+                    "View Cart (%d)", itemCount));
+        } else {
+            fabCart.setVisibility(View.GONE);
+        }
+    }
+
+    // ── Data loading ──────────────────────────────────────────────────────────
 
     private void loadCategories(String restaurantId) {
         FirebaseFirestore.getInstance()

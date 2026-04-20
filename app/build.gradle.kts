@@ -25,6 +25,10 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         manifestPlaceholders["MAPS_API_KEY"] = localProps.getProperty("MAPS_API_KEY", "")
         buildConfigField("String", "MAPS_API_KEY", "\"${localProps.getProperty("MAPS_API_KEY", "")}\"")
+        // Stripe – publishable key is safe on-device; secret key is here for TEST only.
+        // For production, remove STRIPE_SECRET_KEY and call your own backend instead.
+        buildConfigField("String", "STRIPE_PUBLISHABLE_KEY", "\"${localProps.getProperty("STRIPE_PUBLISHABLE_KEY", "")}\"")
+        buildConfigField("String", "STRIPE_SECRET_KEY", "\"${localProps.getProperty("STRIPE_SECRET_KEY", "")}\"")
     }
 
     buildFeatures {
@@ -62,6 +66,7 @@ dependencies {
     implementation(libs.play.services.maps)
     implementation(libs.play.services.location)
     implementation(libs.places)
+    implementation(libs.stripe.android)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
