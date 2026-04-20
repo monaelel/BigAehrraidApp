@@ -89,6 +89,7 @@ public class CustomerHomeRepository {
             .addOnFailureListener(e -> cb.onFailure(e.getMessage()))
             .addOnSuccessListener(snaps -> {
                 List<Restaurant> result = new ArrayList<>();
+                Log.d("HOME_DEBUG", "Restaurants for map fetched: " + snaps.size());
                 for (QueryDocumentSnapshot doc : snaps) {
                     Restaurant r = new Restaurant();
                     r.id    = doc.getId();
@@ -97,9 +98,14 @@ public class CustomerHomeRepository {
                     r.phone = doc.getString("phone");
                     Double lat = doc.getDouble("latitude");
                     Double lng = doc.getDouble("longitude");
+                    if (lat == null || lng == null) {
+                        lat = doc.getDouble("lat");
+                        lng = doc.getDouble("lng");
+                    }
                     if (lat != null && lng != null) {
                         r.latitude  = lat;
                         r.longitude = lng;
+                        Log.d("HOME_DEBUG", "  restaurant marker: " + r.name + " (" + r.id + ") at " + lat + "," + lng);
                         result.add(r);
                     }
                 }

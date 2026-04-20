@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class RestaurantAccountFragment extends Fragment {
@@ -45,7 +46,7 @@ public class RestaurantAccountFragment extends Fragment {
         loadProfile();
 
         btnEditInformation.setOnClickListener(v ->
-                Toast.makeText(getContext(), "Edit Information — coming soon", Toast.LENGTH_SHORT).show()
+                Toast.makeText(getContext(), "Please call admin to modify your restaurant!", Toast.LENGTH_SHORT).show()
         );
 
         return view;
@@ -62,15 +63,61 @@ public class RestaurantAccountFragment extends Fragment {
                 String phone = getStr(data, "phone");
                 String mail  = getStr(data, "mail");
 
+                String neighborhood, street, city, province, postalCode;
+
+                // Check if address is nested (old seeded format) or flat (new format)
                 Object addrObj = data.get("address");
-                String label = "", full = "";
                 if (addrObj instanceof Map) {
                     @SuppressWarnings("unchecked")
                     Map<String, Object> addr = (Map<String, Object>) addrObj;
-                    label = getStr(addr, "label");
-                    full  = getStr(addr, "street") + ", " + getStr(addr, "city") + ", "
-                          + getStr(addr, "province") + " " + getStr(addr, "postalCode") + ", Canada";
+                    neighborhood = getStr(addr, "label");
+                    street = getStr(addr, "street");
+                    city = getStr(addr, "city");
+                    province = getStr(addr, "province");
+                    postalCode = getStr(addr, "postalCode");
+                } else {
+                    // Flat format
+                    neighborhood = getStr(data, "neighborhood");
+                    street = getStr(data, "street");
+                    city = getStr(data, "city");
+                    province = getStr(data, "province");
+                    postalCode = getStr(data, "postalCode");
                 }
+
+                // If fields are empty, populate with defaults
+                boolean needsUpdate = name.isEmpty() || phone.isEmpty() || mail.isEmpty() ||
+                                      neighborhood.isEmpty() || street.isEmpty() || city.isEmpty() ||
+                                      province.isEmpty() || postalCode.isEmpty();
+
+                if (needsUpdate) {
+                    Map<String, Object> updateData = new HashMap<>();
+                    if (name.isEmpty()) updateData.put("name", "[ Restaurant Name ]");
+                    if (phone.isEmpty()) updateData.put("phone", "[ Phone ]");
+                    if (mail.isEmpty()) updateData.put("mail", email); // Use email as default
+                    if (neighborhood.isEmpty()) updateData.put("neighborhood", "[ Neighbourhood ]");
+                    if (street.isEmpty()) updateData.put("street", "[ Street ]");
+                    if (city.isEmpty()) updateData.put("city", "[ City ]");
+                    if (province.isEmpty()) updateData.put("province", "[ Province ]");
+                    if (postalCode.isEmpty()) updateData.put("postalCode", "[ Postal Code ]");
+                    updateData.put("lat", 0.0);
+                    updateData.put("lng", 0.0);
+
+                    restaurantRepo.saveProfile(updateData, new RestaurantRepository.Callback<Void>() {
+                        @Override
+                        public void onSuccess(Void result) {
+                            // Reload after update
+                            loadProfile();
+                        }
+                        @Override
+                        public void onFailure(String error) {
+                            // Ignore or log
+                        }
+                    });
+                    return; // Wait for reload
+                }
+
+                String label = neighborhood;
+                String full = street + ", " + city + ", " + province + " " + postalCode + ", Canada";
 
                 tvRestaurantName.setText(name.isEmpty()  ? "[ Restaurant Name ]" : name);
                 tvRestaurantEmail.setText(email.isEmpty() ? "company@email.com"   : email);

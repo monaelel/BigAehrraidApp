@@ -7,6 +7,8 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -25,7 +27,7 @@ public class RestaurantSeeder {
 
     private static final String PREFS_NAME   = "seeder_prefs";
     private static final String KEY_VERSION  = "seed_version";
-    private static final int    SEED_VERSION = 5;
+    private static final int    SEED_VERSION = 7;
 
     static final String DEFAULT_PASSWORD = "12345678";
 
@@ -80,8 +82,35 @@ public class RestaurantSeeder {
     /** Call from Application.onCreate. Re-runs only when SEED_VERSION is bumped. */
     public static void seedIfNeeded(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        if (prefs.getInt(KEY_VERSION, 0) >= SEED_VERSION) return;
+        int savedVersion = prefs.getInt(KEY_VERSION, 0);
 
+        if (savedVersion >= SEED_VERSION) {
+            ensureRestaurantsExist(context, prefs);
+            return;
+        }
+
+        runSeeder(context, prefs);
+    }
+
+    private static void ensureRestaurantsExist(Context context, SharedPreferences prefs) {
+        FirebaseFirestore.getInstance()
+            .collection("restaurants")
+            .limit(1)
+            .get()
+            .addOnSuccessListener(snaps -> {
+                if (snaps.isEmpty()) {
+                    runSeeder(context, prefs);
+                } else {
+                    repairRestaurantDocs();
+                }
+            })
+            .addOnFailureListener(e -> {
+                // If the check fails, still try seeding.
+                runSeeder(context, prefs);
+            });
+    }
+
+    private static void runSeeder(Context context, SharedPreferences prefs) {
         // Use a secondary FirebaseApp so we don't disturb the current auth session
         FirebaseApp secondary;
         try {
@@ -97,6 +126,69 @@ public class RestaurantSeeder {
         createNext(secondaryAuth, db, 0, () ->
             prefs.edit().putInt(KEY_VERSION, SEED_VERSION).apply()
         );
+    }
+
+    /**
+     * Repairs existing restaurant documents that contain no profile fields.
+     * This is useful when the document exists only to hold subcollections.
+     */
+    public static void repairRestaurantDocs() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("restaurants").get()
+          .addOnSuccessListener(snaps -> {
+              for (QueryDocumentSnapshot doc : snaps) {
+                  if (needsRepair(doc)) {
+                      String uid = doc.getId();
+                      String email = doc.getString("email");
+                      if (email != null && !email.isEmpty()) {
+                          restoreFromSeed(uid, email);
+                      } else {
+                          db.collection("users").document(uid).get()
+                            .addOnSuccessListener(userDoc -> {
+                                String userEmail = userDoc.getString("email");
+                                if (userEmail != null && !userEmail.isEmpty()) {
+                                    restoreFromSeed(uid, userEmail);
+                                }
+                            });
+                      }
+                  }
+              }
+          });
+    }
+
+    private static boolean needsRepair(QueryDocumentSnapshot doc) {
+        return doc.getData().isEmpty() || doc.getString("name") == null || doc.getString("email") == null;
+    }
+
+    private static void restoreFromSeed(String uid, String email) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        loadSeedForEmail(email, new SeedCallback() {
+            @Override
+            public void onFound(Map<String, Object> data) {
+                Map<String, Object> restaurantDoc = new HashMap<>(data);
+                restaurantDoc.put("email", email);
+                db.collection("restaurants").document(uid)
+                  .set(restaurantDoc, SetOptions.merge());
+            }
+
+            @Override
+            public void onNotFound() {
+                Map<String, Object> restaurantDoc = new HashMap<>();
+                restaurantDoc.put("email", email);
+                restaurantDoc.put("name", "");
+                restaurantDoc.put("phone", "");
+                restaurantDoc.put("mail", email);
+                restaurantDoc.put("neighborhood", "");
+                restaurantDoc.put("street", "");
+                restaurantDoc.put("city", "");
+                restaurantDoc.put("province", "");
+                restaurantDoc.put("postalCode", "");
+                restaurantDoc.put("lat", 0.0);
+                restaurantDoc.put("lng", 0.0);
+                db.collection("restaurants").document(uid)
+                  .set(restaurantDoc, SetOptions.merge());
+            }
+        });
     }
 
     /** Called by AuthRepository when a restaurant owner registers. */
@@ -177,21 +269,18 @@ public class RestaurantSeeder {
                                                    String street, String city,
                                                    String province, String postalCode,
                                                    double latitude, double longitude) {
-        Map<String, Object> address = new HashMap<>();
-        address.put("label",      neighbourhood);
-        address.put("street",     street);
-        address.put("city",       city);
-        address.put("province",   province);
-        address.put("postalCode", postalCode);
-
         Map<String, Object> data = new HashMap<>();
-        data.put("name",      name);
-        data.put("email",     email);
-        data.put("phone",     phone);
-        data.put("mail",      mail);
-        data.put("address",   address);
-        data.put("latitude",  latitude);
-        data.put("longitude", longitude);
+        data.put("name",        name);
+        data.put("email",       email);
+        data.put("phone",       phone);
+        data.put("mail",        mail);
+        data.put("neighborhood", neighbourhood);
+        data.put("street",      street);
+        data.put("city",        city);
+        data.put("province",    province);
+        data.put("postalCode",  postalCode);
+        data.put("lat",         latitude);
+        data.put("lng",         longitude);
         return data;
     }
 
