@@ -67,6 +67,7 @@ dependencies {
     implementation(libs.play.services.location)
     implementation(libs.places)
     implementation(libs.stripe.android)
+    implementation(libs.okhttp)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

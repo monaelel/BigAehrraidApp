@@ -1,24 +1,22 @@
 package com.example.bigaehrraidapp;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
- * In-memory cart singleton. Holds items for the currently viewed restaurant.
- * Cleared automatically when the user switches to a different restaurant.
+ * Singleton cart that holds items for the current restaurant session.
+ * Call {@link #clear()} when the user leaves the restaurant menu.
  */
 public class CartManager {
 
     private static CartManager instance;
 
-    private final List<CartItem>       items        = new ArrayList<>();
-    private       String               restaurantId = null;
-    private       String               restaurantName = null;
-    private       OnCartChangedListener listener;
-
-    public interface OnCartChangedListener {
-        void onCartChanged(int totalItems);
-    }
+    // productId → CartItem
+    private final Map<String, CartItem> itemsMap = new LinkedHashMap<>();
+    private String restaurantId;
+    private String restaurantName;
 
     private CartManager() {}
 
@@ -27,91 +25,63 @@ public class CartManager {
         return instance;
     }
 
-    // ── Restaurant context ────────────────────────────────────────────────────
+    // ── Session ──────────────────────────────────────────────────────────────
 
     public void setRestaurant(String id, String name) {
-        if (id != null && !id.equals(restaurantId)) {
-            // Switching restaurant → clear cart
-            items.clear();
+        if (!id.equals(restaurantId)) {
+            // Switched restaurant — start fresh
+            itemsMap.clear();
         }
-        restaurantId   = id;
-        restaurantName = name;
-        notifyListener();
+        this.restaurantId   = id;
+        this.restaurantName = name;
     }
 
     public String getRestaurantId()   { return restaurantId; }
     public String getRestaurantName() { return restaurantName; }
 
-    // ── Cart operations ───────────────────────────────────────────────────────
+    // ── Mutations ─────────────────────────────────────────────────────────────
 
-    public void addItem(CartItem newItem) {
-        for (CartItem existing : items) {
-            if (existing.productId.equals(newItem.productId)) {
-                existing.quantity++;
-                notifyListener();
-                return;
-            }
+    public void addItem(String productId, String name, double price, String imageUrl) {
+        if (itemsMap.containsKey(productId)) {
+            itemsMap.get(productId).quantity++;
+        } else {
+            itemsMap.put(productId, new CartItem(productId, name, price, imageUrl));
         }
-        items.add(newItem);
-        notifyListener();
     }
 
     public void removeItem(String productId) {
-        for (int i = 0; i < items.size(); i++) {
-            if (items.get(i).productId.equals(productId)) {
-                CartItem item = items.get(i);
-                if (item.quantity > 1) {
-                    item.quantity--;
-                } else {
-                    items.remove(i);
-                }
-                notifyListener();
-                return;
-            }
+        CartItem item = itemsMap.get(productId);
+        if (item == null) return;
+        if (item.quantity > 1) {
+            item.quantity--;
+        } else {
+            itemsMap.remove(productId);
         }
     }
 
-    public void clearCart() {
-        items.clear();
-        notifyListener();
+    public void clear() {
+        itemsMap.clear();
     }
+
+    // ── Reads ─────────────────────────────────────────────────────────────────
 
     public List<CartItem> getItems() {
-        return new ArrayList<>(items);
+        return new ArrayList<>(itemsMap.values());
     }
 
-    public int getTotalItemCount() {
-        int count = 0;
-        for (CartItem item : items) count += item.quantity;
-        return count;
+    public int getTotalCount() {
+        int total = 0;
+        for (CartItem item : itemsMap.values()) total += item.quantity;
+        return total;
     }
 
     public double getSubtotal() {
-        double sum = 0;
-        for (CartItem item : items) sum += item.lineTotal();
-        return sum;
-    }
-
-    /** Tax rate: 8 % */
-    public double getTaxes() {
-        return getSubtotal() * 0.08;
-    }
-
-    public double getTotal() {
-        return getSubtotal() + getTaxes();
+        double total = 0;
+        for (CartItem item : itemsMap.values()) total += item.subtotal();
+        return total;
     }
 
     public boolean isEmpty() {
-        return items.isEmpty();
-    }
-
-    // ── Observer ──────────────────────────────────────────────────────────────
-
-    public void setOnCartChangedListener(OnCartChangedListener l) {
-        listener = l;
-    }
-
-    private void notifyListener() {
-        if (listener != null) listener.onCartChanged(getTotalItemCount());
+        return itemsMap.isEmpty();
     }
 }

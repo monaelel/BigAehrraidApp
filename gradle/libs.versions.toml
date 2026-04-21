@@ -1,6 +1,7 @@
 [versions]
 agp = "8.13.2"
-stripe = "20.35.3"
+stripe = "20.52.0"
+okhttp = "4.12.0"
 junit = "4.13.2"
 junitVersion = "1.3.0"
 espressoCore = "3.7.0"
@@ -38,6 +39,7 @@ play-services-maps = { group = "com.google.android.gms", name = "play-services-m
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 places = { group = "com.google.android.libraries.places", name = "places", version.ref = "places" }
 stripe-android = { group = "com.stripe", name = "stripe-android", version.ref = "stripe" }
+okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

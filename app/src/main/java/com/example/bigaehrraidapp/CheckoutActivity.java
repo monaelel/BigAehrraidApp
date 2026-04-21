@@ -16,21 +16,33 @@ import com.stripe.android.PaymentConfiguration;
 import com.stripe.android.paymentsheet.PaymentSheet;
 import com.stripe.android.paymentsheet.PaymentSheetResult;
 
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
 public class CheckoutActivity extends AppCompatActivity {
 
-    private CartManager   cart;
-    private CartAdapter   adapter;
+    private static final double TAX_RATE = 0.10;
+
+    private PaymentSheet   paymentSheet;
+    private String         clientSecret;
+
+    private CartAdapter    cartAdapter;
     private List<CartItem> cartItems;
 
-    private TextView    tvSubtotal, tvTax, tvTotal;
+    private TextView    tvRestaurantName, tvSubtotal, tvTax, tvTotal;
     private Button      btnPay;
     private ProgressBar progressBar;
-
-    private PaymentSheet paymentSheet;
-    private String       clientSecret;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,124 +50,183 @@ public class CheckoutActivity extends AppCompatActivity {
         setContentView(R.layout.activity_checkout);
 
         // Init Stripe
-        PaymentConfiguration.init(getApplicationContext(), BuildConfig.STRIPE_PUBLISHABLE_KEY);
+        PaymentConfiguration.init(getApplicationContext(),
+                BuildConfig.STRIPE_PUBLISHABLE_KEY);
 
         // PaymentSheet must be created in onCreate
-        paymentSheet = new PaymentSheet(this, this::onPaymentResult);
+        paymentSheet = new PaymentSheet(this, this::onPaymentSheetResult);
 
         // Views
-        tvSubtotal  = findViewById(R.id.tvSubtotal);
-        tvTax       = findViewById(R.id.tvTax);
-        tvTotal     = findViewById(R.id.tvTotal);
-        btnPay      = findViewById(R.id.btnPay);
-        progressBar = findViewById(R.id.progressBar);
+        tvRestaurantName = findViewById(R.id.tvRestaurantName);
+        tvSubtotal       = findViewById(R.id.tvSubtotal);
+        tvTax            = findViewById(R.id.tvTax);
+        tvTotal          = findViewById(R.id.tvTotal);
+        btnPay           = findViewById(R.id.btnPay);
+        progressBar      = findViewById(R.id.progressBar);
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
 
         // Cart
-        cart      = CartManager.getInstance();
-        cartItems = cart.getItems();
+        CartManager cart = CartManager.getInstance();
+        tvRestaurantName.setText(cart.getRestaurantName());
 
-        RecyclerView rv = findViewById(R.id.rvCart);
+        cartItems = new ArrayList<>(cart.getItems());
+        cartAdapter = new CartAdapter(cartItems, this::refreshTotals);
+
+        RecyclerView rv = findViewById(R.id.rvCartItems);
         rv.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new CartAdapter(cartItems, new CartAdapter.OnQuantityChanged() {
-            @Override
-            public void onIncrement(String productId) {
-                // find the CartItem and add 1
-                for (CartItem ci : cartItems) {
-                    if (ci.productId.equals(productId)) {
-                        cart.addItem(new CartItem(ci.productId, ci.name, ci.imageUrl, ci.price));
-                        break;
-                    }
-                }
-                refreshCart();
-            }
+        rv.setAdapter(cartAdapter);
 
-            @Override
-            public void onDecrement(String productId) {
-                cart.removeItem(productId);
-                refreshCart();
+        refreshTotals();
+
+        btnPay.setOnClickListener(v -> {
+            if (CartManager.getInstance().isEmpty()) {
+                Toast.makeText(this, "Your cart is empty", Toast.LENGTH_SHORT).show();
+                return;
             }
+            createPaymentIntent();
         });
-        rv.setAdapter(adapter);
-
-        updateTotals();
-
-        btnPay.setOnClickListener(v -> startPayment());
     }
 
-    // ── Payment flow ──────────────────────────────────────────────────────────
+    // ── Totals ────────────────────────────────────────────────────────────────
 
-    private void startPayment() {
-        if (cart.isEmpty()) {
-            Toast.makeText(this, "Your cart is empty", Toast.LENGTH_SHORT).show();
-            return;
-        }
+    private void refreshTotals() {
+        double subtotal = CartManager.getInstance().getSubtotal();
+        double tax      = subtotal * TAX_RATE;
+        double total    = subtotal + tax;
 
+        tvSubtotal.setText(String.format(Locale.getDefault(), "$%.2f", subtotal));
+        tvTax.setText(String.format(Locale.getDefault(), "$%.2f", tax));
+        tvTotal.setText(String.format(Locale.getDefault(), "$%.2f", total));
+        btnPay.setText(String.format(Locale.getDefault(), "Pay $%.2f", total));
+
+        boolean empty = CartManager.getInstance().isEmpty();
+        btnPay.setEnabled(!empty);
+        btnPay.setAlpha(empty ? 0.5f : 1f);
+    }
+
+    // ── Stripe: Create PaymentIntent ──────────────────────────────────────────
+
+    private void createPaymentIntent() {
         setLoading(true);
 
-        long amountCents = Math.round(cart.getTotal() * 100);
+        double subtotal    = CartManager.getInstance().getSubtotal();
+        long   amountCents = Math.round((subtotal + subtotal * TAX_RATE) * 100);
 
-        PaymentIntentService.createPaymentIntent(amountCents, "usd", new PaymentIntentService.Callback() {
+        OkHttpClient client = new OkHttpClient();
+
+        okhttp3.RequestBody body = new FormBody.Builder()
+                .add("amount",   String.valueOf(amountCents))
+                .add("currency", "usd")
+                .add("payment_method_types[]", "card")
+                .build();
+
+        Request request = new Request.Builder()
+                .url("https://api.stripe.com/v1/payment_intents")
+                .addHeader("Authorization", "Bearer " + BuildConfig.STRIPE_SECRET_KEY)
+                .post(body)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
             @Override
-            public void onSuccess(String secret) {
-                clientSecret = secret;
-                setLoading(false);
-                presentPaymentSheet();
+            public void onFailure(@androidx.annotation.NonNull Call call,
+                                  @androidx.annotation.NonNull IOException e) {
+                runOnUiThread(() -> {
+                    setLoading(false);
+                    Toast.makeText(CheckoutActivity.this,
+                            "Network error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                });
             }
 
             @Override
-            public void onError(String message) {
-                setLoading(false);
-                Toast.makeText(CheckoutActivity.this,
-                        "Could not start payment: " + message, Toast.LENGTH_LONG).show();
+            public void onResponse(@androidx.annotation.NonNull Call call,
+                                   @androidx.annotation.NonNull Response response)
+                    throws IOException {
+                String responseBody = response.body() != null
+                        ? response.body().string() : "";
+                runOnUiThread(() -> {
+                    setLoading(false);
+                    try {
+                        JSONObject json = new JSONObject(responseBody);
+                        if (json.has("error")) {
+                            String msg = json.getJSONObject("error")
+                                    .optString("message", "Unknown error");
+                            Toast.makeText(CheckoutActivity.this,
+                                    "Payment setup failed: " + msg,
+                                    Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                        clientSecret = json.getString("client_secret");
+                        presentPaymentSheet();
+                    } catch (Exception e) {
+                        Toast.makeText(CheckoutActivity.this,
+                                "Payment setup failed. Please try again.",
+                                Toast.LENGTH_LONG).show();
+                    }
+                });
             }
         });
     }
 
+    // ── Stripe: Present PaymentSheet ──────────────────────────────────────────
+
     private void presentPaymentSheet() {
-        PaymentSheet.Configuration config = new PaymentSheet.Configuration.Builder("BigAehrraidApp")
-                .build();
+        PaymentSheet.Configuration config =
+                new PaymentSheet.Configuration.Builder("BigAehrraidApp").build();
         paymentSheet.presentWithPaymentIntent(clientSecret, config);
     }
 
-    private void onPaymentResult(PaymentSheetResult result) {
+    // ── Stripe: Handle result ─────────────────────────────────────────────────
+
+    private void onPaymentSheetResult(PaymentSheetResult result) {
         if (result instanceof PaymentSheetResult.Completed) {
-            saveOrderToFirestore();
+            placeOrder();
         } else if (result instanceof PaymentSheetResult.Failed) {
-            String msg = ((PaymentSheetResult.Failed) result).getError().getLocalizedMessage();
+            String msg = ((PaymentSheetResult.Failed) result)
+                    .getError().getLocalizedMessage();
             Toast.makeText(this, "Payment failed: " + msg, Toast.LENGTH_LONG).show();
         }
         // PaymentSheetResult.Canceled → user dismissed; do nothing
     }
 
-    // ── Save order to Firestore after successful payment ──────────────────────
+    // ── Save order to Firestore ───────────────────────────────────────────────
 
-    private void saveOrderToFirestore() {
+    private void placeOrder() {
         setLoading(true);
-        OrderRepository repo = OrderRepository.getInstance(AuthRepository.getInstance(this));
+
+        CartManager      cart = CartManager.getInstance();
+        OrderRepository  repo = OrderRepository.getInstance(
+                AuthRepository.getInstance(this));
+
+        double subtotal = cart.getSubtotal();
+        double taxes    = subtotal * TAX_RATE;
 
         repo.placeOrder(
                 cart.getRestaurantId(),
                 cart.getItems(),
-                cart.getSubtotal(),
-                cart.getTaxes(),
+                subtotal,
+                taxes,
                 new OrderRepository.ActionCallback() {
                     @Override
                     public void onSuccess() {
-                        cart.clearCart();
+                        cart.clear();
                         setLoading(false);
-                        showSuccess();
+                        new AlertDialog.Builder(CheckoutActivity.this)
+                                .setTitle("Order placed!")
+                                .setMessage("Payment successful. The restaurant has been notified.")
+                                .setCancelable(false)
+                                .setPositiveButton("OK", (d, w) -> finish())
+                                .show();
                     }
 
                     @Override
                     public void onFailure(String error) {
+                        cart.clear();
                         setLoading(false);
-                        // Payment already succeeded – still clear cart & inform user
-                        cart.clearCart();
+                        // Payment succeeded — alert with warning
                         new AlertDialog.Builder(CheckoutActivity.this)
                                 .setTitle("Order recorded with a warning")
-                                .setMessage("Payment succeeded but we could not save the order details: "
+                                .setMessage("Payment succeeded but we could not save the order: "
                                         + error + "\nPlease contact support.")
                                 .setPositiveButton("OK", (d, w) -> finish())
                                 .show();
@@ -163,33 +234,7 @@ public class CheckoutActivity extends AppCompatActivity {
                 });
     }
 
-    private void showSuccess() {
-        new AlertDialog.Builder(this)
-                .setTitle("Order placed!")
-                .setMessage("Your payment was successful. The restaurant has been notified.")
-                .setCancelable(false)
-                .setPositiveButton("OK", (d, w) -> finish())
-                .show();
-    }
-
     // ── Helpers ───────────────────────────────────────────────────────────────
-
-    private void refreshCart() {
-        cartItems.clear();
-        cartItems.addAll(cart.getItems());
-        adapter.notifyDataSetChanged();
-        updateTotals();
-    }
-
-    private void updateTotals() {
-        tvSubtotal.setText(String.format(Locale.getDefault(), "$%.2f", cart.getSubtotal()));
-        tvTax.setText(String.format(Locale.getDefault(), "$%.2f", cart.getTaxes()));
-        tvTotal.setText(String.format(Locale.getDefault(), "$%.2f", cart.getTotal()));
-
-        boolean empty = cart.isEmpty();
-        btnPay.setEnabled(!empty);
-        btnPay.setAlpha(empty ? 0.5f : 1f);
-    }
 
     private void setLoading(boolean loading) {
         progressBar.setVisibility(loading ? View.VISIBLE : View.GONE);

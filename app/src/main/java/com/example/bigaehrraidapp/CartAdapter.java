@@ -15,65 +15,85 @@ import com.bumptech.glide.Glide;
 import java.util.List;
 import java.util.Locale;
 
-public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
+public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartVH> {
 
-    public interface OnQuantityChanged {
-        void onIncrement(String productId);
-        void onDecrement(String productId);
+    public interface OnCartChangedListener {
+        void onCartChanged();
     }
 
-    private final List<CartItem>     items;
-    private final OnQuantityChanged  listener;
+    private final List<CartItem>        items;
+    private final OnCartChangedListener listener;
 
-    public CartAdapter(List<CartItem> items, OnQuantityChanged listener) {
+    public CartAdapter(List<CartItem> items, OnCartChangedListener listener) {
         this.items    = items;
         this.listener = listener;
     }
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public CartVH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
-                               .inflate(R.layout.item_cart, parent, false);
-        return new ViewHolder(v);
+                .inflate(R.layout.item_cart_item, parent, false);
+        return new CartVH(v);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder h, int position) {
-        CartItem item = items.get(position);
-        h.tvName.setText(item.name);
-        h.tvPrice.setText(String.format(Locale.getDefault(), "$%.2f", item.price));
-        h.tvQty.setText(String.valueOf(item.quantity));
-        h.tvLineTotal.setText(String.format(Locale.getDefault(), "$%.2f", item.lineTotal()));
-
-        if (item.imageUrl != null && !item.imageUrl.isEmpty()) {
-            Glide.with(h.itemView.getContext()).load(item.imageUrl)
-                 .centerCrop().placeholder(android.R.color.darker_gray).into(h.ivImage);
-        } else {
-            h.ivImage.setImageResource(android.R.color.darker_gray);
-        }
-
-        h.btnPlus.setOnClickListener(v -> listener.onIncrement(item.productId));
-        h.btnMinus.setOnClickListener(v -> listener.onDecrement(item.productId));
+    public void onBindViewHolder(@NonNull CartVH holder, int position) {
+        holder.bind(items.get(position));
     }
 
     @Override
     public int getItemCount() { return items.size(); }
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
+    class CartVH extends RecyclerView.ViewHolder {
         final ImageView   ivImage;
-        final TextView    tvName, tvPrice, tvQty, tvLineTotal;
-        final ImageButton btnPlus, btnMinus;
+        final TextView    tvName, tvPrice, tvQty;
+        final ImageButton btnInc, btnDec;
 
-        ViewHolder(@NonNull View v) {
-            super(v);
-            ivImage     = v.findViewById(R.id.ivCartImage);
-            tvName      = v.findViewById(R.id.tvCartName);
-            tvPrice     = v.findViewById(R.id.tvCartPrice);
-            tvQty       = v.findViewById(R.id.tvCartQty);
-            tvLineTotal = v.findViewById(R.id.tvCartLineTotal);
-            btnPlus     = v.findViewById(R.id.btnCartPlus);
-            btnMinus    = v.findViewById(R.id.btnCartMinus);
+        CartVH(@NonNull View itemView) {
+            super(itemView);
+            ivImage  = itemView.findViewById(R.id.ivCartItemImage);
+            tvName   = itemView.findViewById(R.id.tvCartItemName);
+            tvPrice  = itemView.findViewById(R.id.tvCartItemPrice);
+            tvQty    = itemView.findViewById(R.id.tvCartItemQty);
+            btnInc   = itemView.findViewById(R.id.btnIncrement);
+            btnDec   = itemView.findViewById(R.id.btnDecrement);
+        }
+
+        void bind(CartItem item) {
+            tvName.setText(item.name);
+            tvPrice.setText(String.format(Locale.getDefault(), "$%.2f each", item.price));
+            tvQty.setText(String.valueOf(item.quantity));
+
+            if (item.imageUrl != null && !item.imageUrl.isEmpty()) {
+                Glide.with(itemView.getContext()).load(item.imageUrl)
+                        .centerCrop().placeholder(android.R.color.darker_gray).into(ivImage);
+            } else {
+                ivImage.setImageResource(android.R.color.darker_gray);
+            }
+
+            btnInc.setOnClickListener(v -> {
+                CartManager.getInstance().addItem(
+                        item.productId, item.name, item.price, item.imageUrl);
+                item.quantity++;
+                tvQty.setText(String.valueOf(item.quantity));
+                if (listener != null) listener.onCartChanged();
+            });
+
+            btnDec.setOnClickListener(v -> {
+                CartManager.getInstance().removeItem(item.productId);
+                if (item.quantity > 1) {
+                    item.quantity--;
+                    tvQty.setText(String.valueOf(item.quantity));
+                } else {
+                    int pos = getAdapterPosition();
+                    if (pos != RecyclerView.NO_ID) {
+                        items.remove(pos);
+                        notifyItemRemoved(pos);
+                    }
+                }
+                if (listener != null) listener.onCartChanged();
+            });
         }
     }
 }

@@ -32,8 +32,8 @@ public class CustomerRestaurantMenuActivity extends AppCompatActivity {
     private TextView              tvEmpty;
     private ExtendedFloatingActionButton fabCart;
 
-    private List<Category>             categories = new ArrayList<>();
-    private List<Map<String, Object>>  products   = new ArrayList<>();
+    private List<Category>            categories = new ArrayList<>();
+    private List<Map<String, Object>> products   = new ArrayList<>();
 
     private String restaurantId;
     private String restaurantName;
@@ -56,28 +56,31 @@ public class CustomerRestaurantMenuActivity extends AppCompatActivity {
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
 
         // Tell CartManager which restaurant we're in (clears cart if switching)
-        CartManager cart = CartManager.getInstance();
-        cart.setRestaurant(restaurantId, restaurantName);
+        CartManager.getInstance().setRestaurant(
+                restaurantId != null ? restaurantId : "",
+                restaurantName != null ? restaurantName : "");
 
         // FAB
-        updateFab(cart.getTotalItemCount());
-        cart.setOnCartChangedListener(count -> updateFab(count));
+        updateFab();
         fabCart.setOnClickListener(v -> {
-            startActivity(new Intent(this, CheckoutActivity.class));
+            if (CartManager.getInstance().isEmpty()) {
+                Toast.makeText(this, "Your cart is empty", Toast.LENGTH_SHORT).show();
+            } else {
+                startActivity(new Intent(this, CheckoutActivity.class));
+            }
         });
 
         // Adapter with add-to-cart callback
         adapter = new CustomerMenuAdapter(storeItems, product -> {
-            String  pId    = (String) product.get("productId");
-            String  pName  = (String) product.getOrDefault("name", "Item");
-            String  pImg   = (String) product.get("imageUrl");
-            Object  prObj  = product.get("price");
-            double  price  = prObj instanceof Number ? ((Number) prObj).doubleValue() : 0;
+            String pId   = (String) product.get("productId");
+            String pName = (String) product.getOrDefault("name", "Item");
+            String pImg  = (String) product.get("imageUrl");
+            Object prObj = product.get("price");
+            double price = prObj instanceof Number ? ((Number) prObj).doubleValue() : 0;
 
-            CartItem item = new CartItem(pId, pName, pImg, price);
-            CartManager.getInstance().addItem(item);
-            Toast.makeText(this,
-                    pName + " added to cart", Toast.LENGTH_SHORT).show();
+            CartManager.getInstance().addItem(pId, pName, price, pImg);
+            updateFab();
+            Toast.makeText(this, pName + " added to cart", Toast.LENGTH_SHORT).show();
         });
 
         rv.setLayoutManager(new LinearLayoutManager(this));
@@ -95,25 +98,16 @@ public class CustomerRestaurantMenuActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // Re-register listener in case it was cleared
-        CartManager cart = CartManager.getInstance();
-        cart.setOnCartChangedListener(count -> updateFab(count));
-        updateFab(cart.getTotalItemCount());
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        CartManager.getInstance().setOnCartChangedListener(null);
+        updateFab();
     }
 
     // ── FAB ───────────────────────────────────────────────────────────────────
 
-    private void updateFab(int itemCount) {
-        if (itemCount > 0) {
+    private void updateFab() {
+        int count = CartManager.getInstance().getTotalCount();
+        if (count > 0) {
             fabCart.setVisibility(View.VISIBLE);
-            fabCart.setText(String.format(Locale.getDefault(),
-                    "View Cart (%d)", itemCount));
+            fabCart.setText(String.format(Locale.getDefault(), "View Cart (%d)", count));
         } else {
             fabCart.setVisibility(View.GONE);
         }
@@ -133,7 +127,7 @@ public class CustomerRestaurantMenuActivity extends AppCompatActivity {
                     cat.id   = doc.getId();
                     cat.name = doc.getString("name");
                     Long so  = doc.getLong("sortOrder");
-                    cat.sortOrder   = so != null ? so.intValue() : 0;
+                    cat.sortOrder = so != null ? so.intValue() : 0;
                     categories.add(cat);
                 }
                 loadProducts(restaurantId);
