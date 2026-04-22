@@ -13,10 +13,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -24,14 +24,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.widget.Autocomplete;
-import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
-
-import android.util.Log;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -56,7 +50,7 @@ public class CustomerDealsFragment extends Fragment {
         rewardsBox = view.findViewById(R.id.rewardsBox);
         RecyclerView rvCategories = view.findViewById(R.id.rvCategories);
 
-        List<Category> categories = new java.util.ArrayList<>();
+        List<Category> categories = Category.getFixedCategories();
         CategoryHomeAdapter adapter = new CategoryHomeAdapter(categories);
         rvCategories.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         rvCategories.setAdapter(adapter);
@@ -65,25 +59,6 @@ public class CustomerDealsFragment extends Fragment {
             intent.putExtra(RestaurantListActivity.EXTRA_CATEGORY_TAG, cat.name);
             intent.putExtra(RestaurantListActivity.EXTRA_CATEGORY_NAME, cat.name);
             startActivity(intent);
-        });
-
-        Log.d("HOME_DEBUG", "Starting loadAllCategories...");
-        CustomerHomeRepository.getInstance().loadAllCategories(new CustomerHomeRepository.Callback<List<Category>>() {
-            @Override
-            public void onSuccess(List<Category> data) {
-                Log.d("HOME_DEBUG", "onSuccess — categories received: " + data.size());
-                for (Category c : data) Log.d("HOME_DEBUG", "  category: " + c.name);
-                categories.addAll(data);
-                adapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onFailure(String error) {
-                Log.e("HOME_DEBUG", "onFailure: " + error);
-                if (getContext() != null) {
-                    Toast.makeText(getContext(), "Failed to load categories: " + error, Toast.LENGTH_LONG).show();
-                }
-            }
         });
 
         AuthRepository auth = AuthRepository.getInstance(requireContext());

@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -31,18 +30,11 @@ public class RestaurantStoreFragment extends Fragment implements StoreAdapter.Li
     private final List<StoreItem> storeItems = new ArrayList<>();
 
     private ProductRepository productRepo;
-    private CategoryRepository categoryRepo;
-    private List<Category> categories = new ArrayList<>();
     private List<Map<String, Object>> products = new ArrayList<>();
 
     private final ActivityResultLauncher<Intent> productFormLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-                if (result.getResultCode() == android.app.Activity.RESULT_OK) loadAll();
-            });
-
-    private final ActivityResultLauncher<Intent> categoryLauncher =
-            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-                if (result.getResultCode() == android.app.Activity.RESULT_OK) loadAll();
+                if (result.getResultCode() == android.app.Activity.RESULT_OK) loadProducts();
             });
 
     @Nullable
@@ -52,8 +44,7 @@ public class RestaurantStoreFragment extends Fragment implements StoreAdapter.Li
         View view = inflater.inflate(R.layout.fragment_restaurant_store, container, false);
 
         AuthRepository authRepo = AuthRepository.getInstance(requireContext());
-        productRepo  = ProductRepository.getInstance(authRepo);
-        categoryRepo = CategoryRepository.getInstance(authRepo);
+        productRepo = ProductRepository.getInstance(authRepo);
 
         layoutEmptyState = view.findViewById(R.id.layoutEmptyState);
         rvProducts       = view.findViewById(R.id.rvProducts);
@@ -65,23 +56,10 @@ public class RestaurantStoreFragment extends Fragment implements StoreAdapter.Li
         view.findViewById(R.id.btnAddProduct).setOnClickListener(v ->
                 productFormLauncher.launch(new Intent(requireContext(), AddProductActivity.class)));
 
-        view.findViewById(R.id.btnCategories).setOnClickListener(v ->
-                categoryLauncher.launch(new Intent(requireContext(), ManageCategoriesActivity.class)));
+        view.findViewById(R.id.btnCategories).setVisibility(View.GONE);
 
-        loadAll();
+        loadProducts();
         return view;
-    }
-
-    private void loadAll() {
-        categoryRepo.loadCategories(new CategoryRepository.Callback<List<Category>>() {
-            @Override public void onSuccess(List<Category> data) {
-                categories = data;
-                loadProducts();
-            }
-            @Override public void onFailure(String error) {
-                loadProducts();
-            }
-        });
     }
 
     private void loadProducts() {
@@ -98,17 +76,16 @@ public class RestaurantStoreFragment extends Fragment implements StoreAdapter.Li
     }
 
     private void buildStoreItems() {
-        Map<String, String> categoryNames = new LinkedHashMap<>();
-        for (Category cat : categories) categoryNames.put(cat.id, cat.name);
+        List<Category> fixedCats = Category.getFixedCategories();
 
         LinkedHashMap<String, List<Map<String, Object>>> grouped = new LinkedHashMap<>();
-        for (Category cat : categories) grouped.put(cat.id, new ArrayList<>());
+        for (Category cat : fixedCats) grouped.put(cat.name, new ArrayList<>());
 
         List<Map<String, Object>> uncategorized = new ArrayList<>();
         for (Map<String, Object> product : products) {
-            String catId = (String) product.get("categoryId");
-            if (catId != null && grouped.containsKey(catId)) {
-                grouped.get(catId).add(product);
+            String catName = (String) product.get("categoryName");
+            if (catName != null && grouped.containsKey(catName)) {
+                grouped.get(catName).add(product);
             } else {
                 uncategorized.add(product);
             }
@@ -118,7 +95,7 @@ public class RestaurantStoreFragment extends Fragment implements StoreAdapter.Li
         for (Map.Entry<String, List<Map<String, Object>>> entry : grouped.entrySet()) {
             List<Map<String, Object>> prods = entry.getValue();
             if (prods.isEmpty()) continue;
-            storeItems.add(StoreItem.header(categoryNames.get(entry.getKey())));
+            storeItems.add(StoreItem.header(entry.getKey()));
             for (Map<String, Object> p : prods) storeItems.add(StoreItem.product(p));
         }
         if (!uncategorized.isEmpty()) {
@@ -143,7 +120,7 @@ public class RestaurantStoreFragment extends Fragment implements StoreAdapter.Li
                 .setMessage("Are you sure you want to delete this product?")
                 .setPositiveButton("Delete", (dialog, which) ->
                         productRepo.deleteProduct(productId, new ProductRepository.Callback<Void>() {
-                            @Override public void onSuccess(Void v) { loadAll(); }
+                            @Override public void onSuccess(Void v) { loadProducts(); }
                             @Override public void onFailure(String error) {
                                 Toast.makeText(requireContext(), "Delete failed", Toast.LENGTH_SHORT).show();
                             }
