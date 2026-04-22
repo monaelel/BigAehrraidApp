@@ -158,6 +158,26 @@ public class AuthRepository {
         prefs.edit().putString(KEY_ROLE, role).apply();
     }
 
+    public void registerRestaurant(String email, String password,
+                                    Map<String, Object> profileData, AuthCallback cb) {
+        auth.createUserWithEmailAndPassword(email, password)
+            .addOnSuccessListener(result -> {
+                String uid = result.getUser().getUid();
+                saveRole("restaurant");
+                Map<String, Object> userDoc = new HashMap<>();
+                userDoc.put("email", email);
+                userDoc.put("role",  "restaurant");
+                profileData.put("email", email);
+                db.collection("users").document(uid).set(userDoc)
+                  .addOnSuccessListener(v ->
+                      db.collection("restaurants").document(uid).set(profileData)
+                        .addOnSuccessListener(v2 -> cb.onSuccess())
+                        .addOnFailureListener(e -> cb.onFailure(e.getMessage())))
+                  .addOnFailureListener(e -> cb.onFailure(e.getMessage()));
+            })
+            .addOnFailureListener(e -> cb.onFailure(e.getMessage()));
+    }
+
     public void resetPassword(String email, AuthCallback cb) {
         auth.sendPasswordResetEmail(email)
             .addOnSuccessListener(aVoid -> cb.onSuccess())

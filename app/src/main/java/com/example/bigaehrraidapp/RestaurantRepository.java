@@ -57,6 +57,36 @@ public class RestaurantRepository {
           .addOnFailureListener(e -> cb.onFailure(e.getMessage()));
     }
 
+    public void isPhoneTaken(String phone, Callback<Boolean> cb) {
+        db.collection("restaurants")
+          .whereEqualTo("phone", phone)
+          .get()
+          .addOnSuccessListener(snaps -> {
+              String currentUid = uid();
+              boolean taken = false;
+              for (com.google.firebase.firestore.QueryDocumentSnapshot doc : snaps) {
+                  if (!doc.getId().equals(currentUid)) { taken = true; break; }
+              }
+              cb.onSuccess(taken);
+          })
+          .addOnFailureListener(e -> cb.onFailure(e.getMessage()));
+    }
+
+    public void isContactEmailTaken(String email, Callback<Boolean> cb) {
+        db.collection("restaurants")
+          .whereEqualTo("mail", email)
+          .get()
+          .addOnSuccessListener(snaps -> {
+              String currentUid = uid();
+              boolean taken = false;
+              for (com.google.firebase.firestore.QueryDocumentSnapshot doc : snaps) {
+                  if (!doc.getId().equals(currentUid)) { taken = true; break; }
+              }
+              cb.onSuccess(taken);
+          })
+          .addOnFailureListener(e -> cb.onFailure(e.getMessage()));
+    }
+
     public void saveStoreHours(Map<String, Object> hours, Callback<Void> cb) {
         db.collection("restaurants").document(uid())
           .update("storeHours", hours)

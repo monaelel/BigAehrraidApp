@@ -25,29 +25,17 @@ public class CategoryHomeAdapter extends RecyclerView.Adapter<CategoryHomeAdapte
 
     static {
         EMOJI_MAP.put("burgers", "🍔");
-        EMOJI_MAP.put("burger", "🍔");
-        EMOJI_MAP.put("sides", "🍟");
-        EMOJI_MAP.put("side", "🍟");
-        EMOJI_MAP.put("drinks", "☕");
-        EMOJI_MAP.put("drink", "☕");
-        EMOJI_MAP.put("beverages", "🥤");
-        EMOJI_MAP.put("beverage", "🥤");
         EMOJI_MAP.put("pizza", "🍕");
-        EMOJI_MAP.put("chicken", "🍗");
-        EMOJI_MAP.put("desserts", "🍰");
-        EMOJI_MAP.put("dessert", "🍰");
-        EMOJI_MAP.put("salads", "🥗");
-        EMOJI_MAP.put("salad", "🥗");
-        EMOJI_MAP.put("sandwiches", "🥪");
-        EMOJI_MAP.put("sandwich", "🥪");
-        EMOJI_MAP.put("tacos", "🌮");
-        EMOJI_MAP.put("taco", "🌮");
         EMOJI_MAP.put("sushi", "🍣");
-        EMOJI_MAP.put("pasta", "🍝");
-        EMOJI_MAP.put("soup", "🍜");
+        EMOJI_MAP.put("mexican", "🌮");
+        EMOJI_MAP.put("chinese", "🥡");
+        EMOJI_MAP.put("chicken", "🍗");
+        EMOJI_MAP.put("italian", "🍝");
+        EMOJI_MAP.put("healthy & salads", "🥗");
         EMOJI_MAP.put("breakfast", "🍳");
-        EMOJI_MAP.put("snacks", "🍿");
-        EMOJI_MAP.put("snack", "🍿");
+        EMOJI_MAP.put("asian fusion", "🥢");
+        EMOJI_MAP.put("sandwiches", "🥪");
+        EMOJI_MAP.put("desserts", "🍰");
     }
 
     public CategoryHomeAdapter(List<Category> categories) {
