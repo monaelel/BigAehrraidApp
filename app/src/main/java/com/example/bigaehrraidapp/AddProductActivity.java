@@ -29,7 +29,7 @@ import java.util.UUID;
 
 public class AddProductActivity extends AppCompatActivity {
 
-    private EditText etName, etDescription, etPrice, etStock;
+    private EditText etName, etDescription, etPrice;
     private Spinner spinnerCategory;
     private ImageView ivProductImage;
     private LinearLayout layoutImagePlaceholder;
@@ -61,7 +61,7 @@ public class AddProductActivity extends AppCompatActivity {
         etName                 = findViewById(R.id.etProductName);
         etDescription          = findViewById(R.id.etProductDescription);
         etPrice                = findViewById(R.id.etProductPrice);
-        etStock                = findViewById(R.id.etProductStock);
+//        etStock                = findViewById(R.id.etProductStock);
         spinnerCategory        = findViewById(R.id.spinnerCategory);
         ivProductImage         = findViewById(R.id.ivProductImage);
         layoutImagePlaceholder = findViewById(R.id.layoutImagePlaceholder);
@@ -93,7 +93,7 @@ public class AddProductActivity extends AppCompatActivity {
         String name        = etName.getText().toString().trim();
         String description = etDescription.getText().toString().trim();
         String priceStr    = etPrice.getText().toString().trim();
-        String stockStr    = etStock.getText().toString().trim();
+//        String stockStr    = etStock.getText().toString().trim();
 
         if (TextUtils.isEmpty(name)) {
             etName.setError("Product name is required");
@@ -115,10 +115,10 @@ public class AddProductActivity extends AppCompatActivity {
             return;
         }
 
-        int stock = 0;
-        if (!TextUtils.isEmpty(stockStr)) {
-            try { stock = Integer.parseInt(stockStr); } catch (NumberFormatException ignored) {}
-        }
+//        int stock = 0;
+//        if (!TextUtils.isEmpty(stockStr)) {
+//            try { stock = Integer.parseInt(stockStr); } catch (NumberFormatException ignored) {}
+//        }
 
         int selectedPos = spinnerCategory.getSelectedItemPosition();
         String categoryId   = null;
@@ -132,31 +132,39 @@ public class AddProductActivity extends AppCompatActivity {
         btnSave.setEnabled(false);
         btnSave.setText("Saving...");
 
-        final int    finalStock        = stock;
+//        final int    finalStock        = stock;
         final String finalCategoryId   = categoryId;
         final String finalCategoryName = categoryName;
 
         if (selectedImageUri != null) {
             String filename = UUID.randomUUID().toString() + ".jpg";
             StorageReference imageRef = storageRef.child(filename);
+//            imageRef.putFile(selectedImageUri)
+//                    .addOnSuccessListener(snap ->
+//                            imageRef.getDownloadUrl().addOnSuccessListener(uri ->
+//                                    persist(name, description, price, finalCategoryId, finalCategoryName,
+//                                            finalStock, uri.toString())))
+//                    .addOnFailureListener(e -> resetSaveButton());
             imageRef.putFile(selectedImageUri)
                     .addOnSuccessListener(snap ->
                             imageRef.getDownloadUrl().addOnSuccessListener(uri ->
                                     persist(name, description, price, finalCategoryId, finalCategoryName,
-                                            finalStock, uri.toString())))
+                                            uri.toString())))
                     .addOnFailureListener(e -> resetSaveButton());
         } else {
-            persist(name, description, price, finalCategoryId, finalCategoryName, finalStock, null);
+            persist(name, description, price, finalCategoryId, finalCategoryName, null);
         }
     }
 
+//    private void persist(String name, String description, double price,
+//                         String categoryId, String categoryName, int stock, String imageUrl) {
     private void persist(String name, String description, double price,
-                         String categoryId, String categoryName, int stock, String imageUrl) {
+                         String categoryId, String categoryName, String imageUrl) {
         Map<String, Object> product = new HashMap<>();
         product.put("name",         name);
         product.put("description",  description);
         product.put("price",        price);
-        product.put("stock",        stock);
+//        product.put("stock",        stock);
         product.put("available",    true);
         product.put("createdAt",    System.currentTimeMillis());
         if (categoryId   != null) product.put("categoryId",   categoryId);

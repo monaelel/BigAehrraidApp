@@ -30,6 +30,9 @@ public class ActivityAuthLogin extends AppCompatActivity {
         setContentView(R.layout.activity_auth_login);
 
         role    = getIntent().getStringExtra("role");
+        // If role wasn't passed, default to customer (no role validation)
+        if (role == null) role = "customer";
+        
         authRepo = AuthRepository.getInstance(this);
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());

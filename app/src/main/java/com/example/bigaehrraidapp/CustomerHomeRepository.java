@@ -1,7 +1,5 @@
 package com.example.bigaehrraidapp;
 
-import android.util.Log;
-
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -35,28 +33,31 @@ public class CustomerHomeRepository {
             .addOnFailureListener(e -> cb.onFailure(e.getMessage()))
             .addOnSuccessListener(snaps -> {
                 List<Restaurant> result = new ArrayList<>();
-                Log.d("HOME_DEBUG", "Restaurants for map fetched: " + snaps.size());
                 for (QueryDocumentSnapshot doc : snaps) {
                     Restaurant r = new Restaurant();
-                    r.id    = doc.getId();
-                    r.name  = doc.getString("name");
-                    r.email = doc.getString("email");
-                    r.phone = doc.getString("phone");
-                    Double lat = doc.getDouble("latitude");
-                    Double lng = doc.getDouble("longitude");
-                    if (lat == null || lng == null) {
-                        lat = doc.getDouble("lat");
-                        lng = doc.getDouble("lng");
-                    }
-                    if (lat != null && lng != null) {
-                        r.latitude  = lat;
-                        r.longitude = lng;
-                        Log.d("HOME_DEBUG", "  restaurant marker: " + r.name + " (" + r.id + ") at " + lat + "," + lng);
-                        result.add(r);
-                    }
+                    r.id         = doc.getId();
+                    r.name       = doc.getString("name");
+                    r.email      = doc.getString("email");
+                    r.phone      = doc.getString("phone");
+                    r.street     = doc.getString("street");
+                    r.city       = doc.getString("city");
+                    r.province   = doc.getString("province");
+                    r.postalCode = doc.getString("postalCode");
+                    Double lat = doc.getDouble("lat");
+                    Double lng = doc.getDouble("lng");
+                    r.latitude  = lat != null ? lat : 0.0;
+                    r.longitude = lng != null ? lng : 0.0;
+                    result.add(r);
                 }
                 cb.onSuccess(result);
             });
+    }
+
+    public void updateCoordinates(String restaurantId, double lat, double lng) {
+        Map<String, Object> update = new HashMap<>();
+        update.put("lat", lat);
+        update.put("lng", lng);
+        db.collection("restaurants").document(restaurantId).update(update);
     }
 
     public void loadRestaurantsByCategory(String categoryName, Callback<List<Restaurant>> cb) {

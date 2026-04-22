@@ -6,6 +6,10 @@ public class Restaurant {
     public String email;
     public String phone;
     public String mail;
+    public String street;
+    public String city;
+    public String province;
+    public String postalCode;
     public double latitude;
     public double longitude;
 
