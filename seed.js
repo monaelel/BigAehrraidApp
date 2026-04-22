@@ -1,5 +1,5 @@
 const admin = require("firebase-admin");
-const serviceAccount = require("./big-aehrraid-firebase-adminsdk-fbsvc-f14d90fb7b.json");
+const serviceAccount = require("./big-aehrraid-firebase-adminsdk-fbsvc-bffbda53e6.json");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -139,7 +139,10 @@ async function seed() {
     const uid = authUser.uid;
 
     const batch = db.batch();
-    batch.set(db.collection("users").doc(uid), { email: r.email, role: "restaurant" });
+    batch.set(db.collection("users").doc(uid), {
+      email: r.email,
+      role: "restaurant",
+    });
     batch.set(db.collection("restaurants").doc(uid), r);
     await batch.commit();
 
