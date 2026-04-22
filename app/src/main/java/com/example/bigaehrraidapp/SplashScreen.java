@@ -33,7 +33,7 @@ public class SplashScreen extends AppCompatActivity {
                 } else if ("customer".equals(role)) {
                     intent = new Intent(this, CustomerMainActivity.class);
                 } else {
-                    intent = new Intent(this, RoleSelectionActivity.class);
+                    intent = new Intent(this, CustomerMainActivity.class);
                 }
                 startActivity(intent);
             } else {

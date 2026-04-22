@@ -34,7 +34,7 @@
             android:layout_height="44dp"
             android:layout_weight="1"
             android:layout_marginStart="8dp"
-            android:hint="Search for a place..."
+            android:hint="Search restaurants by name..."
             android:textSize="14sp"
             android:textColor="#1A1A1A"
             android:textColorHint="#AAAAAA"
