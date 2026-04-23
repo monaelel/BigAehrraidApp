@@ -14,6 +14,7 @@ public class Order {
     public String customerPhone;
     public String customerAddress;
     public int    itemCount;
+    public double subtotal;
     public double totalAmount;
     public double taxes;
     public String status;

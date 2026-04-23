@@ -71,7 +71,7 @@ public class OrderRepository {
                         o.customerId   = doc.getString("customerId");
                         o.customerName = doc.getString("customerName");
                         o.status       = status != null ? status : Order.STATUS_INCOMING;
-                        o.totalAmount  = doc.getDouble("total")     != null ? doc.getDouble("total")  : 0;
+                        o.totalAmount  = doc.getDouble("totalAmount")     != null ? doc.getDouble("totalAmount")  : 0;
                         o.itemCount    = doc.getLong("itemCount")   != null ? doc.getLong("itemCount").intValue() : 0;
                         o.createdAt    = doc.getLong("createdAt")   != null ? doc.getLong("createdAt") : 0;
                         orders.add(o);
@@ -83,6 +83,34 @@ public class OrderRepository {
 
     public void removeListener() {
         if (ordersListener != null) { ordersListener.remove(); ordersListener = null; }
+    }
+
+    public void listenToCustomerOrders(OrdersCallback cb) {
+        String customerId = authRepo.getCurrentUserId();
+        if (customerId == null) { cb.onFailure("Not logged in"); return; }
+
+        ordersListener = db.collection("orders")
+            .whereEqualTo("customerId", customerId)
+            .orderBy("createdAt", Query.Direction.DESCENDING)
+            .addSnapshotListener((snapshots, error) -> {
+                if (error != null) { cb.onFailure(error.getMessage()); return; }
+                List<Order> orders = new ArrayList<>();
+                if (snapshots != null) {
+                    for (QueryDocumentSnapshot doc : snapshots) {
+                        Order o = new Order();
+                        o.orderId      = doc.getId();
+                        o.restaurantId = doc.getString("restaurantId");
+                        o.customerId   = doc.getString("customerId");
+                        o.customerName = doc.getString("customerName");
+                        o.status       = doc.getString("status");
+                        o.totalAmount  = doc.getDouble("totalAmount")     != null ? doc.getDouble("totalAmount")  : 0;
+                        o.itemCount    = doc.getLong("itemCount")   != null ? doc.getLong("itemCount").intValue() : 0;
+                        o.createdAt    = doc.getLong("createdAt")   != null ? doc.getLong("createdAt") : 0;
+                        orders.add(o);
+                    }
+                }
+                cb.onOrdersUpdated(orders);
+            });
     }
 
     // ── Fetch single order + its items subcollection ─────────────────────────
@@ -101,7 +129,7 @@ public class OrderRepository {
               o.customerPhone   = doc.getString("customerPhone");
               o.customerAddress = doc.getString("customerAddress");
               o.status          = doc.getString("status");
-              o.totalAmount     = doc.getDouble("total")    != null ? doc.getDouble("total")    : 0;
+              o.totalAmount     = doc.getDouble("totalAmount")    != null ? doc.getDouble("totalAmount")    : 0;
               o.taxes           = doc.getDouble("taxes")    != null ? doc.getDouble("taxes")    : 0;
               o.itemCount       = doc.getLong("itemCount")  != null ? doc.getLong("itemCount").intValue() : 0;
               o.createdAt       = doc.getLong("createdAt")  != null ? doc.getLong("createdAt")  : 0;
@@ -138,6 +166,36 @@ public class OrderRepository {
           .addOnFailureListener(e -> cb.onFailure(e.getMessage()));
     }
 
+    public void createOrder(Order order, List<CartItem> items, ActionCallback cb) {
+        String customerId = authRepo.getCurrentUserId();
+        if (customerId == null) {
+            cb.onFailure("User not logged in");
+            return;
+        }
+
+        order.customerId = customerId;
+        order.createdAt = System.currentTimeMillis();
+        order.status = Order.STATUS_INCOMING;
+
+        // Create main order document
+        db.collection("orders").add(order)
+            .addOnSuccessListener(docRef -> {
+                String orderId = docRef.getId();
+                // Add items to subcollection
+                for (CartItem item : items) {
+                    Map<String, Object> itemData = new HashMap<>();
+                    itemData.put("productId", item.getProductId());
+                    itemData.put("name", item.getName());
+                    itemData.put("price", item.getPrice());
+                    itemData.put("quantity", item.getQuantity());
+                    itemData.put("imageUrl", item.getImageUrl());
+                    db.collection("orders").document(orderId).collection("items").add(itemData);
+                }
+                cb.onSuccess();
+            })
+            .addOnFailureListener(e -> cb.onFailure(e.getMessage()));
+    }
+
 
 
     public void getTodayStats(String restaurantId, StatsCallback cb) {
@@ -161,7 +219,7 @@ public class OrderRepository {
                   String status = doc.getString("status");
                   if (Order.STATUS_DECLINED.equals(status)) continue;
 
-                  Double amount = doc.getDouble("total");
+                  Double amount = doc.getDouble("totalAmount");
                   if (amount == null) amount = 0.0;
                   totalSales  += amount;
                   orderVolume += 1;

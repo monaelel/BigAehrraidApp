@@ -58,6 +58,7 @@ public class CustomerRestaurantMenuActivity extends AppCompatActivity implements
         });
 
         CartManager.getInstance().setListener(this);
+        CartManager.getInstance().setRestaurantId(restaurantId);
         updateCartTotal();
 
         if (restaurantId == null) {

@@ -21,6 +21,7 @@ public class CustomerAccountFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_customer_account, container, false);
 
         Button btnAccountInformation = view.findViewById(R.id.btnAccountInformation);
+        Button btnOrderHistory      = view.findViewById(R.id.btnOrderHistory);
         Button btnLogout             = view.findViewById(R.id.btnLogout);
         Button btnLogin              = view.findViewById(R.id.btnLogin);
 
@@ -30,12 +31,18 @@ public class CustomerAccountFragment extends Fragment {
         if (isLoggedIn) {
             // Show account info + logout; hide login
             btnAccountInformation.setVisibility(View.VISIBLE);
+            btnOrderHistory.setVisibility(View.VISIBLE);
             btnLogout.setVisibility(View.VISIBLE);
             btnLogin.setVisibility(View.GONE);
 
             btnAccountInformation.setOnClickListener(v ->
                 Toast.makeText(getContext(), "Account Information — coming soon", Toast.LENGTH_SHORT).show()
             );
+
+            btnOrderHistory.setOnClickListener(v -> {
+                Intent intent = new Intent(requireContext(), CustomerOrderHistoryActivity.class);
+                startActivity(intent);
+            });
 
             btnLogout.setOnClickListener(v -> {
                 authRepo.logout();

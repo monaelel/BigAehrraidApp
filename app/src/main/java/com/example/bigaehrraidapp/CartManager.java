@@ -6,6 +6,7 @@ import java.util.List;
 public class CartManager {
 
     private static CartManager instance;
+    private String restaurantId;
     private final List<CartItem> items;
     private OnCartChangeListener listener;
 
@@ -22,6 +23,14 @@ public class CartManager {
             instance = new CartManager();
         }
         return instance;
+    }
+
+    public void setRestaurantId(String restaurantId) {
+        this.restaurantId = restaurantId;
+    }
+
+    public String getRestaurantId() {
+        return restaurantId;
     }
 
     public void setListener(OnCartChangeListener listener) {

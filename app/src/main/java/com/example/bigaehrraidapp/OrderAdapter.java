@@ -24,10 +24,16 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
 
     private final List<Order> orders;
     private final OnOrderActionListener listener;
+    private final boolean isSeller;
 
     public OrderAdapter(List<Order> orders, OnOrderActionListener listener) {
+        this(orders, listener, true); // Default to seller for backward compatibility
+    }
+
+    public OrderAdapter(List<Order> orders, OnOrderActionListener listener, boolean isSeller) {
         this.orders   = orders;
         this.listener = listener;
+        this.isSeller = isSeller;
     }
 
     @NonNull
@@ -51,20 +57,22 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
         h.layoutIncomingButtons.setVisibility(View.GONE);
         h.btnReady.setVisibility(View.GONE);
 
-        switch (order.status) {
-            case Order.STATUS_INCOMING:
-                h.layoutIncomingButtons.setVisibility(View.VISIBLE);
-                h.btnAccept.setOnClickListener(v -> listener.onAccept(h.getAdapterPosition()));
-                h.btnDecline.setOnClickListener(v -> listener.onDecline(h.getAdapterPosition()));
-                break;
+        if (isSeller) {
+            switch (order.status) {
+                case Order.STATUS_INCOMING:
+                    h.layoutIncomingButtons.setVisibility(View.VISIBLE);
+                    h.btnAccept.setOnClickListener(v -> listener.onAccept(h.getAdapterPosition()));
+                    h.btnDecline.setOnClickListener(v -> listener.onDecline(h.getAdapterPosition()));
+                    break;
 
-            case Order.STATUS_PREPARING:
-                h.btnReady.setVisibility(View.VISIBLE);
-                h.btnReady.setOnClickListener(v -> listener.onReady(h.getAdapterPosition()));
-                break;
+                case Order.STATUS_PREPARING:
+                    h.btnReady.setVisibility(View.VISIBLE);
+                    h.btnReady.setOnClickListener(v -> listener.onReady(h.getAdapterPosition()));
+                    break;
 
-            case Order.STATUS_COMPLETED:
-                break;
+                case Order.STATUS_COMPLETED:
+                    break;
+            }
         }
 
         h.itemView.setOnClickListener(v -> listener.onOrderClick(h.getAdapterPosition()));
