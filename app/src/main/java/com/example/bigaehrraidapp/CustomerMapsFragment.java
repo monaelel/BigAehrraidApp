@@ -1,10 +1,13 @@
 package com.example.bigaehrraidapp;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,8 +22,6 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -28,27 +29,30 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.widget.Autocomplete;
-import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 
-import java.util.Arrays;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class CustomerMapsFragment extends Fragment implements OnMapReadyCallback {
 
     private GoogleMap googleMap;
-    private FusedLocationProviderClient fusedLocationClient;
     private EditText etMapSearch;
     private LinearLayout restaurantCard;
     private TextView tvCardName, tvCardAddress, tvCardRating;
 
-    private final Map<String, Restaurant> markerRestaurantMap = new HashMap<>();
+    private final Map<Marker, Restaurant> markerRestaurantMap = new HashMap<>();
 
-    private static final int LOCATION_PERMISSION_REQUEST = 2001;
-    private static final int MAP_AUTOCOMPLETE_REQUEST    = 2002;
+    private static final int    LOCATION_PERMISSION_REQUEST = 2001;
+    private static final double FALLBACK_LAT = 45.502564;
+    private static final double FALLBACK_LNG = -73.534244;
+
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     @Nullable
     @Override
@@ -56,22 +60,22 @@ public class CustomerMapsFragment extends Fragment implements OnMapReadyCallback
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_customer_maps, container, false);
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
         etMapSearch    = view.findViewById(R.id.etMapSearch);
         restaurantCard = view.findViewById(R.id.restaurantCard);
         tvCardName     = view.findViewById(R.id.tvRestaurantCardName);
         tvCardAddress  = view.findViewById(R.id.tvRestaurantCardAddress);
         tvCardRating   = view.findViewById(R.id.tvRestaurantCardRating);
 
-        etMapSearch.setOnClickListener(v -> launchPlaceSearch());
         etMapSearch.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                launchPlaceSearch();
+                searchRestaurantByName(etMapSearch.getText().toString().trim());
+                InputMethodManager imm = (InputMethodManager)
+                        requireActivity().getSystemService(android.app.Activity.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(etMapSearch.getWindowToken(), 0);
                 return true;
             }
             return false;
         });
-        etMapSearch.setFocusable(false);
 
         SupportMapFragment mapFragment = (SupportMapFragment)
                 getChildFragmentManager().findFragmentById(R.id.mapContainer);
@@ -93,14 +97,14 @@ public class CustomerMapsFragment extends Fragment implements OnMapReadyCallback
         googleMap.getUiSettings().setCompassEnabled(true);
 
         googleMap.setOnMarkerClickListener(marker -> {
-            Restaurant r = markerRestaurantMap.get(marker.getId());
+            Restaurant r = markerRestaurantMap.get(marker);
             if (r != null) showRestaurantCard(r);
             return false;
         });
 
         googleMap.setOnMapClickListener(latLng -> restaurantCard.setVisibility(View.GONE));
 
-        LatLng defaultLocation = new LatLng(45.5017, -73.5673);
+        LatLng defaultLocation = new LatLng(FALLBACK_LAT, FALLBACK_LNG);
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, 12f));
 
         enableMyLocation();
@@ -111,23 +115,10 @@ public class CustomerMapsFragment extends Fragment implements OnMapReadyCallback
         if (ActivityCompat.checkSelfPermission(requireContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             googleMap.setMyLocationEnabled(true);
-            moveCameraToCurrentLocation();
         } else {
             requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     LOCATION_PERMISSION_REQUEST);
         }
-    }
-
-    private void moveCameraToCurrentLocation() {
-        if (ActivityCompat.checkSelfPermission(requireContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) return;
-
-        fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
-            if (location != null && googleMap != null) {
-                LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13f));
-            }
-        });
     }
 
     private void loadRestaurantMarkers() {
@@ -137,11 +128,10 @@ public class CustomerMapsFragment extends Fragment implements OnMapReadyCallback
                     public void onSuccess(List<Restaurant> data) {
                         if (googleMap == null || !isAdded()) return;
                         for (Restaurant r : data) {
-                            LatLng pos = new LatLng(r.latitude, r.longitude);
-                            Marker marker = googleMap.addMarker(
-                                    new MarkerOptions().position(pos).title(r.name));
-                            if (marker != null) {
-                                markerRestaurantMap.put(marker.getId(), r);
+                            if (r.latitude != 0.0 || r.longitude != 0.0) {
+                                addMarker(r, r.latitude, r.longitude);
+                            } else {
+                                geocodeAndAddMarker(r);
                             }
                         }
                     }
@@ -149,6 +139,51 @@ public class CustomerMapsFragment extends Fragment implements OnMapReadyCallback
                     @Override
                     public void onFailure(String error) {}
                 });
+    }
+
+    private void geocodeAndAddMarker(Restaurant r) {
+        String address = r.street + ", " + r.city + ", " + r.province + " " + r.postalCode + ", Canada";
+        executor.execute(() -> {
+            double lat = FALLBACK_LAT;
+            double lng = FALLBACK_LNG;
+            try {
+                Geocoder geocoder = new Geocoder(requireContext(), Locale.getDefault());
+                List<Address> results = geocoder.getFromLocationName(address, 1);
+                if (results != null && !results.isEmpty()) {
+                    lat = results.get(0).getLatitude();
+                    lng = results.get(0).getLongitude();
+                }
+            } catch (IOException | IllegalStateException ignored) {}
+
+            final double finalLat = lat;
+            final double finalLng = lng;
+            CustomerHomeRepository.getInstance().updateCoordinates(r.id, finalLat, finalLng);
+            mainHandler.post(() -> {
+                if (isAdded() && googleMap != null) {
+                    addMarker(r, finalLat, finalLng);
+                }
+            });
+        });
+    }
+
+    private void addMarker(Restaurant r, double lat, double lng) {
+        Marker marker = googleMap.addMarker(
+                new MarkerOptions().position(new LatLng(lat, lng)).title(r.name));
+        if (marker != null) markerRestaurantMap.put(marker, r);
+    }
+
+    private void searchRestaurantByName(String query) {
+        if (query.isEmpty() || googleMap == null) return;
+        String lower = query.toLowerCase();
+        for (Map.Entry<Marker, Restaurant> entry : markerRestaurantMap.entrySet()) {
+            Restaurant r = entry.getValue();
+            if (r.name != null && r.name.toLowerCase().contains(lower)) {
+                Marker marker = entry.getKey();
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 15f));
+                showRestaurantCard(r);
+                return;
+            }
+        }
     }
 
     private void showRestaurantCard(Restaurant r) {
@@ -164,35 +199,6 @@ public class CustomerMapsFragment extends Fragment implements OnMapReadyCallback
         });
     }
 
-    private void launchPlaceSearch() {
-        List<Place.Field> fields = Arrays.asList(
-                Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS, Place.Field.LAT_LNG);
-        Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN, fields)
-                .build(requireActivity());
-        startActivityForResult(intent, MAP_AUTOCOMPLETE_REQUEST);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (requestCode == MAP_AUTOCOMPLETE_REQUEST) {
-            if (resultCode == Activity.RESULT_OK && data != null) {
-                Place place = Autocomplete.getPlaceFromIntent(data);
-                etMapSearch.setText(place.getName());
-
-                LatLng latLng = place.getLatLng();
-                if (latLng != null && googleMap != null) {
-                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14f));
-                }
-
-                InputMethodManager imm = (InputMethodManager)
-                        requireActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(etMapSearch.getWindowToken(), 0);
-            }
-            return;
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
@@ -201,5 +207,11 @@ public class CustomerMapsFragment extends Fragment implements OnMapReadyCallback
                 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             enableMyLocation();
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        executor.shutdown();
     }
 }

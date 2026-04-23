@@ -46,7 +46,6 @@ public class EditProductActivity extends AppCompatActivity {
     private String productId;
     private String existingImageUrl;
     private ProductRepository productRepo;
-    private CategoryRepository categoryRepo;
     private StorageReference storageRef;
     private List<Category> categories = new ArrayList<>();
 
@@ -69,9 +68,8 @@ public class EditProductActivity extends AppCompatActivity {
         if (productId == null) { finish(); return; }
 
         AuthRepository authRepo = AuthRepository.getInstance(this);
-        productRepo  = ProductRepository.getInstance(authRepo);
-        categoryRepo = CategoryRepository.getInstance(authRepo);
-        storageRef   = FirebaseStorage.getInstance().getReference("products");
+        productRepo = ProductRepository.getInstance(authRepo);
+        storageRef  = FirebaseStorage.getInstance().getReference("products");
 
         etName                 = findViewById(R.id.etProductName);
         etDescription          = findViewById(R.id.etProductDescription);
@@ -109,27 +107,22 @@ public class EditProductActivity extends AppCompatActivity {
 
     private void loadCategories() {
         String incomingCategoryId = getIntent().getStringExtra(EXTRA_PRODUCT_CATEGORY_ID);
-        categoryRepo.loadCategories(new CategoryRepository.Callback<List<Category>>() {
-            @Override public void onSuccess(List<Category> data) {
-                categories = data;
-                List<String> names = new ArrayList<>();
-                names.add("No category");
-                for (Category c : data) names.add(c.name);
-                ArrayAdapter<String> adapter = new ArrayAdapter<>(EditProductActivity.this,
-                        android.R.layout.simple_spinner_item, names);
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                spinnerCategory.setAdapter(adapter);
-                if (incomingCategoryId != null) {
-                    for (int i = 0; i < categories.size(); i++) {
-                        if (categories.get(i).id.equals(incomingCategoryId)) {
-                            spinnerCategory.setSelection(i + 1);
-                            break;
-                        }
-                    }
+        categories = Category.getFixedCategories();
+        List<String> names = new ArrayList<>();
+        names.add("No category");
+        for (Category c : categories) names.add(c.name);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, names);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerCategory.setAdapter(adapter);
+        if (incomingCategoryId != null) {
+            for (int i = 0; i < categories.size(); i++) {
+                if (categories.get(i).id.equals(incomingCategoryId)) {
+                    spinnerCategory.setSelection(i + 1);
+                    break;
                 }
             }
-            @Override public void onFailure(String error) {}
-        });
+        }
     }
 
     private void saveChanges() {

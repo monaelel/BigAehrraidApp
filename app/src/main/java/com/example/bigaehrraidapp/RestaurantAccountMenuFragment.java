@@ -37,7 +37,7 @@ public class RestaurantAccountMenuFragment extends Fragment {
 
         btnLogout.setOnClickListener(v -> {
             AuthRepository.getInstance(requireContext()).logout();
-            Intent intent = new Intent(requireContext(), RoleSelectionActivity.class);
+            Intent intent = new Intent(requireContext(), CustomerMainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
         });

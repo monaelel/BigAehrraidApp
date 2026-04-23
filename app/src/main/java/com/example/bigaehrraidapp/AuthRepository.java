@@ -112,7 +112,8 @@ public class AuthRepository {
 
     /**
      * Logs in and validates that the user's stored role matches requiredRole.
-     * Pass null for requiredRole to skip role validation.
+     * Pass null or "customer" for requiredRole to skip strict role validation
+     * and allow logins from either role (determined at signup time).
      */
     public void login(String email, String password, String requiredRole,
                       boolean rememberMe, AuthCallback cb) {
@@ -129,7 +130,8 @@ public class AuthRepository {
 
                       saveRole(storedRole);
 
-                      if (requiredRole != null && !requiredRole.equals(storedRole)) {
+                      // Only enforce role matching if requiredRole is explicitly set and not "customer"
+                      if (requiredRole != null && !"customer".equals(requiredRole) && !requiredRole.equals(storedRole)) {
                           auth.signOut();
                           prefs.edit().remove(KEY_ROLE).apply();
                           cb.onFailure("This account is not registered as a " + requiredRole + ".");
@@ -142,7 +144,8 @@ public class AuthRepository {
                       String fallbackRole = prefs.getString(KEY_ROLE, requiredRole);
                       saveRole(fallbackRole);
 
-                      if (requiredRole != null && !requiredRole.equals(fallbackRole)) {
+                      // Only enforce role matching if requiredRole is explicitly set and not "customer"
+                      if (requiredRole != null && !"customer".equals(requiredRole) && !requiredRole.equals(fallbackRole)) {
                           auth.signOut();
                           prefs.edit().remove(KEY_ROLE).apply();
                           cb.onFailure("This account is not registered as a " + requiredRole + ".");
@@ -156,6 +159,26 @@ public class AuthRepository {
 
     private void saveRole(String role) {
         prefs.edit().putString(KEY_ROLE, role).apply();
+    }
+
+    public void registerRestaurant(String email, String password,
+                                    Map<String, Object> profileData, AuthCallback cb) {
+        auth.createUserWithEmailAndPassword(email, password)
+            .addOnSuccessListener(result -> {
+                String uid = result.getUser().getUid();
+                saveRole("restaurant");
+                Map<String, Object> userDoc = new HashMap<>();
+                userDoc.put("email", email);
+                userDoc.put("role",  "restaurant");
+                profileData.put("email", email);
+                db.collection("users").document(uid).set(userDoc)
+                  .addOnSuccessListener(v ->
+                      db.collection("restaurants").document(uid).set(profileData)
+                        .addOnSuccessListener(v2 -> cb.onSuccess())
+                        .addOnFailureListener(e -> cb.onFailure(e.getMessage())))
+                  .addOnFailureListener(e -> cb.onFailure(e.getMessage()));
+            })
+            .addOnFailureListener(e -> cb.onFailure(e.getMessage()));
     }
 
     public void resetPassword(String email, AuthCallback cb) {

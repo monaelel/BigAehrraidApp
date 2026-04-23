@@ -11,12 +11,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -24,14 +25,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.widget.Autocomplete;
-import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
-
-import android.util.Log;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -42,8 +37,8 @@ public class CustomerDealsFragment extends Fragment {
     private LinearLayout rewardsBox;
     private FusedLocationProviderClient fusedLocationClient;
 
-    private static final int AUTOCOMPLETE_REQUEST_CODE = 1001;
     private static final int LOCATION_PERMISSION_REQUEST = 1002;
+    private static final String DEFAULT_ADDRESS = "4890 Circle Rd, Montreal, QC H3W 1Z7";
 
     @Nullable
     @Override
@@ -56,7 +51,7 @@ public class CustomerDealsFragment extends Fragment {
         rewardsBox = view.findViewById(R.id.rewardsBox);
         RecyclerView rvCategories = view.findViewById(R.id.rvCategories);
 
-        List<Category> categories = new java.util.ArrayList<>();
+        List<Category> categories = Category.getFixedCategories();
         CategoryHomeAdapter adapter = new CategoryHomeAdapter(categories);
         rvCategories.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         rvCategories.setAdapter(adapter);
@@ -65,25 +60,6 @@ public class CustomerDealsFragment extends Fragment {
             intent.putExtra(RestaurantListActivity.EXTRA_CATEGORY_TAG, cat.name);
             intent.putExtra(RestaurantListActivity.EXTRA_CATEGORY_NAME, cat.name);
             startActivity(intent);
-        });
-
-        Log.d("HOME_DEBUG", "Starting loadAllCategories...");
-        CustomerHomeRepository.getInstance().loadAllCategories(new CustomerHomeRepository.Callback<List<Category>>() {
-            @Override
-            public void onSuccess(List<Category> data) {
-                Log.d("HOME_DEBUG", "onSuccess — categories received: " + data.size());
-                for (Category c : data) Log.d("HOME_DEBUG", "  category: " + c.name);
-                categories.addAll(data);
-                adapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onFailure(String error) {
-                Log.e("HOME_DEBUG", "onFailure: " + error);
-                if (getContext() != null) {
-                    Toast.makeText(getContext(), "Failed to load categories: " + error, Toast.LENGTH_LONG).show();
-                }
-            }
         });
 
         AuthRepository auth = AuthRepository.getInstance(requireContext());
@@ -104,20 +80,41 @@ public class CustomerDealsFragment extends Fragment {
     private void setupAddressBar() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
         fetchCurrentAddress();
-        addressBar.setOnClickListener(v -> launchAddressSearch());
+        addressBar.setOnClickListener(v -> showAddressEditDialog());
+    }
+
+    private void showAddressEditDialog() {
+        EditText input = new EditText(requireContext());
+        input.setText(tvAddress.getText());
+        input.setSelection(input.getText().length());
+        int pad = (int) (16 * getResources().getDisplayMetrics().density);
+        input.setPadding(pad, pad, pad, pad);
+        input.setInputType(android.text.InputType.TYPE_CLASS_TEXT
+                | android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS);
+        input.setSingleLine(true);
+
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Delivery Address")
+                .setView(input)
+                .setPositiveButton("Confirm", (d, w) -> {
+                    String entered = input.getText().toString().trim();
+                    if (!entered.isEmpty()) tvAddress.setText(entered);
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     private void fetchCurrentAddress() {
         if (ActivityCompat.checkSelfPermission(requireContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            tvAddress.setText("Tap to set your address");
+            tvAddress.setText(DEFAULT_ADDRESS);
             requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     LOCATION_PERMISSION_REQUEST);
             return;
         }
         fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
             if (location == null) {
-                tvAddress.setText("Tap to set your address");
+                tvAddress.setText(DEFAULT_ADDRESS);
                 return;
             }
             new Thread(() -> {
@@ -131,38 +128,20 @@ public class CustomerDealsFragment extends Fragment {
                         if (activity != null && isAdded()) {
                             activity.runOnUiThread(() -> tvAddress.setText(addressLine));
                         }
+                    } else {
+                        Activity activity = getActivity();
+                        if (activity != null && isAdded()) {
+                            activity.runOnUiThread(() -> tvAddress.setText(DEFAULT_ADDRESS));
+                        }
                     }
                 } catch (IOException | IllegalStateException ignored) {
                     Activity activity = getActivity();
                     if (activity != null && isAdded()) {
-                        activity.runOnUiThread(() -> tvAddress.setText("Tap to set your address"));
+                        activity.runOnUiThread(() -> tvAddress.setText(DEFAULT_ADDRESS));
                     }
                 }
             }).start();
         });
-    }
-
-    private void launchAddressSearch() {
-        List<Place.Field> fields = Arrays.asList(
-                Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS, Place.Field.LAT_LNG);
-        Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN, fields)
-                .build(requireActivity());
-        startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
-            if (resultCode == Activity.RESULT_OK && data != null) {
-                Place place = Autocomplete.getPlaceFromIntent(data);
-                String address = place.getAddress();
-                if (address != null) {
-                    tvAddress.setText(address);
-                }
-            }
-            return;
-        }
-        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -179,16 +158,10 @@ public class CustomerDealsFragment extends Fragment {
         Button btnLogin = view.findViewById(R.id.btnLogin);
         Button btnJoinUs = view.findViewById(R.id.btnJoinUs);
 
-        btnLogin.setOnClickListener(v -> {
-            Intent intent = new Intent(requireContext(), RoleSelectionActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-        });
+        btnLogin.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), ActivityAuthLogin.class)));
 
-        btnJoinUs.setOnClickListener(v -> {
-            Intent intent = new Intent(requireContext(), ActivityAuthRegister.class);
-            intent.putExtra("role", "customer");
-            startActivity(intent);
-        });
+        btnJoinUs.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), ActivityAuthRegister.class)));
     }
 }

@@ -39,7 +39,7 @@ public class CustomerAccountFragment extends Fragment {
 
             btnLogout.setOnClickListener(v -> {
                 authRepo.logout();
-                Intent intent = new Intent(requireContext(), RoleSelectionActivity.class);
+                Intent intent = new Intent(requireContext(), CustomerMainActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
             });
@@ -50,7 +50,7 @@ public class CustomerAccountFragment extends Fragment {
             btnLogin.setVisibility(View.VISIBLE);
 
             btnLogin.setOnClickListener(v -> {
-                Intent intent = new Intent(requireContext(), RoleSelectionActivity.class);
+                Intent intent = new Intent(requireContext(), ActivityAuthLogin.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
             });
