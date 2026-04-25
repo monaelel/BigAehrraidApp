@@ -50,9 +50,25 @@ public class ProductRepository {
     }
 
     public void addProduct(Map<String, Object> product, Callback<String> cb) {
-        productsRef().add(product)
-          .addOnSuccessListener(ref -> cb.onSuccess(ref.getId()))
-          .addOnFailureListener(e   -> cb.onFailure(e.getMessage()));
+        String uid = authRepo.getCurrentUserId();
+        if (uid == null) {
+            cb.onFailure("Not logged in");
+            return;
+        }
+        db.collection("restaurants").document(uid).get()
+            .addOnSuccessListener(doc -> {
+                if (!doc.exists()) {
+                    Map<String, Object> basicInfo = new HashMap<>();
+                    basicInfo.put("name", "Unknown Restaurant");
+                    basicInfo.put("lat", 0.0);
+                    basicInfo.put("lng", 0.0);
+                    db.collection("restaurants").document(uid).set(basicInfo);
+                }
+                productsRef().add(product)
+                  .addOnSuccessListener(ref -> cb.onSuccess(ref.getId()))
+                  .addOnFailureListener(e   -> cb.onFailure(e.getMessage()));
+            })
+            .addOnFailureListener(e -> cb.onFailure(e.getMessage()));
     }
 
     public void updateProduct(String productId, Map<String, Object> data, Callback<Void> cb) {

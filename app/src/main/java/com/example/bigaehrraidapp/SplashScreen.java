@@ -16,6 +16,9 @@ public class SplashScreen extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_splash_screen);
+        
+        // EXTREME FORCE SEEDING: Run every time the splash screen opens
+        RestaurantSeeder.runSeeder(this);
 
         new Handler().postDelayed(() -> {
             AuthRepository auth = AuthRepository.getInstance(this);

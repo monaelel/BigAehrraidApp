@@ -17,6 +17,7 @@ public class OrderRepository {
     private final FirebaseFirestore  db;
     private final AuthRepository     authRepo;
     private ListenerRegistration     ordersListener;
+    private ListenerRegistration     historyListener;
 
     public interface OrdersCallback {
         void onOrdersUpdated(List<Order> orders);
@@ -83,18 +84,30 @@ public class OrderRepository {
 
     public void removeListener() {
         if (ordersListener != null) { ordersListener.remove(); ordersListener = null; }
+        if (historyListener != null) { historyListener.remove(); historyListener = null; }
     }
 
     public void listenToCustomerOrders(OrdersCallback cb) {
         String customerId = authRepo.getCurrentUserId();
         if (customerId == null) { cb.onFailure("Not logged in"); return; }
 
+        List<Order> activeOrders = new ArrayList<>();
+        List<Order> historyOrders = new ArrayList<>();
+
+        Runnable notifyCombined = () -> {
+            List<Order> combined = new ArrayList<>();
+            combined.addAll(activeOrders);
+            combined.addAll(historyOrders);
+            combined.sort((o1, o2) -> Long.compare(o2.createdAt, o1.createdAt));
+            cb.onOrdersUpdated(combined);
+        };
+
         ordersListener = db.collection("orders")
             .whereEqualTo("customerId", customerId)
             .orderBy("createdAt", Query.Direction.DESCENDING)
             .addSnapshotListener((snapshots, error) -> {
                 if (error != null) { cb.onFailure(error.getMessage()); return; }
-                List<Order> orders = new ArrayList<>();
+                activeOrders.clear();
                 if (snapshots != null) {
                     for (QueryDocumentSnapshot doc : snapshots) {
                         Order o = new Order();
@@ -106,10 +119,33 @@ public class OrderRepository {
                         o.totalAmount  = doc.getDouble("totalAmount")     != null ? doc.getDouble("totalAmount")  : 0;
                         o.itemCount    = doc.getLong("itemCount")   != null ? doc.getLong("itemCount").intValue() : 0;
                         o.createdAt    = doc.getLong("createdAt")   != null ? doc.getLong("createdAt") : 0;
-                        orders.add(o);
+                        activeOrders.add(o);
                     }
                 }
-                cb.onOrdersUpdated(orders);
+                notifyCombined.run();
+            });
+
+        historyListener = db.collection("orders_history")
+            .whereEqualTo("customerId", customerId)
+            .orderBy("createdAt", Query.Direction.DESCENDING)
+            .addSnapshotListener((snapshots, error) -> {
+                if (error != null) { cb.onFailure(error.getMessage()); return; }
+                historyOrders.clear();
+                if (snapshots != null) {
+                    for (QueryDocumentSnapshot doc : snapshots) {
+                        Order o = new Order();
+                        o.orderId      = doc.getId();
+                        o.restaurantId = doc.getString("restaurantId");
+                        o.customerId   = doc.getString("customerId");
+                        o.customerName = doc.getString("customerName");
+                        o.status       = doc.getString("status");
+                        o.totalAmount  = doc.getDouble("totalAmount")     != null ? doc.getDouble("totalAmount")  : 0;
+                        o.itemCount    = doc.getLong("itemCount")   != null ? doc.getLong("itemCount").intValue() : 0;
+                        o.createdAt    = doc.getLong("createdAt")   != null ? doc.getLong("createdAt") : 0;
+                        historyOrders.add(o);
+                    }
+                }
+                notifyCombined.run();
             });
     }
 
@@ -119,36 +155,48 @@ public class OrderRepository {
         db.collection("orders").document(orderId)
           .get()
           .addOnSuccessListener(doc -> {
-              if (!doc.exists()) { cb.onFailure("Order not found"); return; }
+              if (!doc.exists()) {
+                  // Fallback to orders_history
+                  db.collection("orders_history").document(orderId).get()
+                    .addOnSuccessListener(histDoc -> {
+                        if (!histDoc.exists()) { cb.onFailure("Order not found"); return; }
+                        parseOrderDetail(histDoc, orderId, "orders_history", cb);
+                    })
+                    .addOnFailureListener(e -> cb.onFailure(e.getMessage()));
+                  return;
+              }
+              parseOrderDetail(doc, orderId, "orders", cb);
+          })
+          .addOnFailureListener(e -> cb.onFailure(e.getMessage()));
+    }
 
-              Order o = new Order();
-              o.orderId         = doc.getId();
-              o.restaurantId    = doc.getString("restaurantId");
-              o.customerId      = doc.getString("customerId");
-              o.customerName    = doc.getString("customerName");
-              o.customerPhone   = doc.getString("customerPhone");
-              o.customerAddress = doc.getString("customerAddress");
-              o.status          = doc.getString("status");
-              o.totalAmount     = doc.getDouble("totalAmount")    != null ? doc.getDouble("totalAmount")    : 0;
-              o.taxes           = doc.getDouble("taxes")    != null ? doc.getDouble("taxes")    : 0;
-              o.itemCount       = doc.getLong("itemCount")  != null ? doc.getLong("itemCount").intValue() : 0;
-              o.createdAt       = doc.getLong("createdAt")  != null ? doc.getLong("createdAt")  : 0;
+    private void parseOrderDetail(com.google.firebase.firestore.DocumentSnapshot doc, String orderId, String collection, OrderDetailCallback cb) {
+        Order o = new Order();
+        o.orderId         = doc.getId();
+        o.restaurantId    = doc.getString("restaurantId");
+        o.customerId      = doc.getString("customerId");
+        o.customerName    = doc.getString("customerName");
+        o.customerPhone   = doc.getString("customerPhone");
+        o.customerAddress = doc.getString("customerAddress");
+        o.status          = doc.getString("status");
+        o.totalAmount     = doc.getDouble("totalAmount")    != null ? doc.getDouble("totalAmount")    : 0;
+        o.taxes           = doc.getDouble("taxes")    != null ? doc.getDouble("taxes")    : 0;
+        o.itemCount       = doc.getLong("itemCount")  != null ? doc.getLong("itemCount").intValue() : 0;
+        o.createdAt       = doc.getLong("createdAt")  != null ? doc.getLong("createdAt")  : 0;
 
-              db.collection("orders").document(orderId).collection("items")
-                .get()
-                .addOnSuccessListener(itemSnaps -> {
-                    List<OrderItem> items = new ArrayList<>();
-                    for (QueryDocumentSnapshot itemDoc : itemSnaps) {
-                        OrderItem item = new OrderItem();
-                        item.name     = itemDoc.getString("name");
-                        item.imageUrl = itemDoc.getString("imageUrl");
-                        item.quantity = itemDoc.getLong("quantity") != null ? itemDoc.getLong("quantity").intValue() : 1;
-                        item.price    = itemDoc.getDouble("price")  != null ? itemDoc.getDouble("price") : 0;
-                        items.add(item);
-                    }
-                    cb.onSuccess(o, items);
-                })
-                .addOnFailureListener(e -> cb.onFailure(e.getMessage()));
+        db.collection(collection).document(orderId).collection("items")
+          .get()
+          .addOnSuccessListener(itemSnaps -> {
+              List<OrderItem> items = new ArrayList<>();
+              for (QueryDocumentSnapshot itemDoc : itemSnaps) {
+                  OrderItem item = new OrderItem();
+                  item.name     = itemDoc.getString("name");
+                  item.imageUrl = itemDoc.getString("imageUrl");
+                  item.quantity = itemDoc.getLong("quantity") != null ? itemDoc.getLong("quantity").intValue() : 1;
+                  item.price    = itemDoc.getDouble("price")  != null ? itemDoc.getDouble("price") : 0;
+                  items.add(item);
+              }
+              cb.onSuccess(o, items);
           })
           .addOnFailureListener(e -> cb.onFailure(e.getMessage()));
     }
@@ -237,5 +285,36 @@ public class OrderRepository {
               cb.onSuccess(totalSales, orderVolume, ticketSize, hourly);
           })
           .addOnFailureListener(e -> cb.onFailure(e.getMessage()));
+    }
+
+    public void moveOrderToHistory(String orderId, ActionCallback cb) {
+        db.collection("orders").document(orderId).get().addOnSuccessListener(doc -> {
+            if (doc.exists()) {
+                Map<String, Object> data = doc.getData();
+                if (data != null) {
+                    data.put("status", "completed");
+                    data.put("historyTimestamp", System.currentTimeMillis());
+                    
+                    db.collection("orders_history").document(orderId).set(data).addOnSuccessListener(aVoid -> {
+                        // Copy the items subcollection
+                        db.collection("orders").document(orderId).collection("items").get().addOnSuccessListener(itemSnaps -> {
+                            for (QueryDocumentSnapshot itemDoc : itemSnaps) {
+                                db.collection("orders_history").document(orderId)
+                                    .collection("items").document(itemDoc.getId())
+                                    .set(itemDoc.getData());
+                            }
+                            // Delete the original order document
+                            db.collection("orders").document(orderId).delete()
+                                .addOnSuccessListener(v -> cb.onSuccess())
+                                .addOnFailureListener(e -> cb.onFailure(e.getMessage()));
+                        });
+                    }).addOnFailureListener(e -> cb.onFailure(e.getMessage()));
+                } else {
+                    cb.onFailure("Order data is null");
+                }
+            } else {
+                cb.onFailure("Order does not exist");
+            }
+        }).addOnFailureListener(e -> cb.onFailure(e.getMessage()));
     }
 }

@@ -31,7 +31,19 @@ android {
         buildConfig = true
     }
 
+    signingConfigs {
+        getByName("debug") {
+            storeFile = rootProject.file("keystores/debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+    }
+
     buildTypes {
+        getByName("debug") {
+            signingConfig = signingConfigs.getByName("debug")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -60,6 +72,7 @@ dependencies {
     implementation(libs.google.firebase.auth)
     implementation(libs.glide)
     implementation(libs.firebase.database)
+    implementation("com.google.firebase:firebase-appcheck-debug")
     implementation(libs.play.services.maps)
     implementation(libs.play.services.location)
     implementation(libs.places)

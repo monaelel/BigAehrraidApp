@@ -27,7 +27,7 @@ public class RestaurantSeeder {
 
     private static final String PREFS_NAME   = "seeder_prefs";
     private static final String KEY_VERSION  = "seed_version";
-    private static final int    SEED_VERSION = 8;
+    private static final int    SEED_VERSION = 10;
 
     static final String DEFAULT_PASSWORD = "12345678";
 
@@ -74,6 +74,14 @@ public class RestaurantSeeder {
             "support@greenbowl.ca",
             "Griffintown",   "750 Rue William",       "Montréal", "QC", "H3C 1N9",
             45.4903, -73.5623
+        ),
+        restaurant(
+            "B12 Burgers",
+            "b12@burgers.com",
+            "+1 (514) 555-0101",
+            "contact@burgers.com",
+            "Sainte Catherine", "1826 Rue Sainte-Catherine O", "Montreal", "QC", "H3H 1M1",
+            45.4930, -73.5800
         )
     );
 
@@ -81,36 +89,50 @@ public class RestaurantSeeder {
 
     /** Call from Application.onCreate. Re-runs only when SEED_VERSION is bumped. */
     public static void seedIfNeeded(Context context) {
+        android.util.Log.e("MANUEL_DEBUG", "seedIfNeeded called.");
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         int savedVersion = prefs.getInt(KEY_VERSION, 0);
+        android.util.Log.e("MANUEL_DEBUG", "Current saved version: " + savedVersion + ", Target version: " + SEED_VERSION);
 
         if (savedVersion >= SEED_VERSION) {
+            android.util.Log.e("MANUEL_DEBUG", "Version check: OK. Checking if restaurants exist anyway.");
             ensureRestaurantsExist(context, prefs);
             return;
         }
 
+        android.util.Log.e("MANUEL_DEBUG", "Version check: BUMP REQUIRED. Running seeder.");
         runSeeder(context, prefs);
     }
 
     private static void ensureRestaurantsExist(Context context, SharedPreferences prefs) {
+        android.util.Log.e("MANUEL_DEBUG", "ensureRestaurantsExist: Fetching restaurants from Firestore...");
         FirebaseFirestore.getInstance()
             .collection("restaurants")
             .limit(1)
             .get()
             .addOnSuccessListener(snaps -> {
                 if (snaps.isEmpty()) {
+                    android.util.Log.e("MANUEL_DEBUG", "ensureRestaurantsExist: Collection is EMPTY. Running seeder.");
                     runSeeder(context, prefs);
                 } else {
+                    android.util.Log.e("MANUEL_DEBUG", "ensureRestaurantsExist: Collection is NOT empty. Running repair.");
                     repairRestaurantDocs();
                 }
             })
             .addOnFailureListener(e -> {
+                android.util.Log.e("MANUEL_DEBUG", "ensureRestaurantsExist: FAILED to fetch collection: " + e.getMessage());
                 // If the check fails, still try seeding.
                 runSeeder(context, prefs);
             });
     }
 
-    private static void runSeeder(Context context, SharedPreferences prefs) {
+    public static void runSeeder(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        runSeeder(context, prefs);
+    }
+
+    public static void runSeeder(Context context, SharedPreferences prefs) {
+        android.util.Log.e("MANUEL_DEBUG", "runSeeder started.");
         // Use a secondary FirebaseApp so we don't disturb the current auth session
         FirebaseApp secondary;
         try {
@@ -133,13 +155,16 @@ public class RestaurantSeeder {
      * This is useful when the document exists only to hold subcollections.
      */
     public static void repairRestaurantDocs() {
+        android.util.Log.e("MANUEL_DEBUG", "repairRestaurantDocs: Starting audit of all restaurant docs.");
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("restaurants").get()
           .addOnSuccessListener(snaps -> {
+              android.util.Log.e("MANUEL_DEBUG", "repairRestaurantDocs: Found " + snaps.size() + " documents to check.");
               for (QueryDocumentSnapshot doc : snaps) {
                   if (needsRepair(doc)) {
                       String uid = doc.getId();
                       String email = doc.getString("email");
+                      android.util.Log.e("MANUEL_DEBUG", "repairRestaurantDocs: Doc " + uid + " needs repair. Email: " + email);
                       if (email != null && !email.isEmpty()) {
                           restoreFromSeed(uid, email);
                       } else {
@@ -147,12 +172,16 @@ public class RestaurantSeeder {
                             .addOnSuccessListener(userDoc -> {
                                 String userEmail = userDoc.getString("email");
                                 if (userEmail != null && !userEmail.isEmpty()) {
+                                    android.util.Log.e("MANUEL_DEBUG", "repairRestaurantDocs: Found email in users collection for " + uid + ": " + userEmail);
                                     restoreFromSeed(uid, userEmail);
                                 }
                             });
                       }
                   }
               }
+          })
+          .addOnFailureListener(e -> {
+              android.util.Log.e("MANUEL_DEBUG", "repairRestaurantDocs: FAILED to list restaurants: " + e.getMessage());
           });
     }
 
@@ -165,10 +194,16 @@ public class RestaurantSeeder {
         loadSeedForEmail(email, new SeedCallback() {
             @Override
             public void onFound(Map<String, Object> data) {
+                android.util.Log.e("MANUEL_DEBUG", "restoreFromSeed: Found seed data for " + email + ". Restoring doc " + uid);
                 Map<String, Object> restaurantDoc = new HashMap<>(data);
                 restaurantDoc.put("email", email);
                 db.collection("restaurants").document(uid)
                   .set(restaurantDoc, SetOptions.merge());
+                  
+                Map<String, Object> userDoc = new HashMap<>();
+                userDoc.put("email", email);
+                userDoc.put("role", "restaurant");
+                db.collection("users").document(uid).set(userDoc, SetOptions.merge());
             }
 
             @Override
@@ -211,10 +246,10 @@ public class RestaurantSeeder {
 
     // ── Private ───────────────────────────────────────────────────────────────
 
-    /** Recursively creates/updates accounts one at a time to avoid async race conditions. */
     private static void createNext(FirebaseAuth auth, FirebaseFirestore db,
                                    int index, Runnable onAllDone) {
         if (index >= SEEDS.size()) {
+            android.util.Log.e("MANUEL_DEBUG", "All seeds processed. Done.");
             onAllDone.run();
             return;
         }
@@ -222,20 +257,25 @@ public class RestaurantSeeder {
         Map<String, Object> seed  = SEEDS.get(index);
         String              email = (String) seed.get("email");
 
+        android.util.Log.e("MANUEL_DEBUG", "Attempting to create user for email: " + email);
         auth.createUserWithEmailAndPassword(email, DEFAULT_PASSWORD)
             .addOnSuccessListener(result -> {
+                android.util.Log.e("MANUEL_DEBUG", "SUCCESS! Created Auth user for: " + email);
                 // New account — write all documents
                 writeRestaurantDocs(auth, db, result.getUser().getUid(), email, seed);
                 createNext(auth, db, index + 1, onAllDone);
             })
             .addOnFailureListener(createErr -> {
+                android.util.Log.e("MANUEL_DEBUG", "ERROR! Auth creation failed for " + email + ": " + createErr.getMessage() + ". Attempting sign-in...");
                 // Account already exists — sign in to get the UID, then update the docs
                 auth.signInWithEmailAndPassword(email, DEFAULT_PASSWORD)
                     .addOnSuccessListener(signInResult -> {
+                        android.util.Log.e("MANUEL_DEBUG", "SUCCESS! Sign-in successful for: " + email);
                         writeRestaurantDocs(auth, db, signInResult.getUser().getUid(), email, seed);
                         createNext(auth, db, index + 1, onAllDone);
                     })
                     .addOnFailureListener(signInErr -> {
+                        android.util.Log.e("MANUEL_DEBUG", "ERROR! Sign-in also failed for " + email + ": " + signInErr.getMessage());
                         // Can't sign in either (wrong password or no network) — skip
                         auth.signOut();
                         createNext(auth, db, index + 1, onAllDone);
@@ -252,15 +292,24 @@ public class RestaurantSeeder {
         Map<String, Object> userDoc = new HashMap<>();
         userDoc.put("email", email);
         userDoc.put("role",  "restaurant");
-        db.collection("users").document(uid).set(userDoc);
+        
+        android.util.Log.e("MANUEL_DEBUG", "Role assigned to " + email + ": restaurant");
+        
+        db.collection("users").document(uid).set(userDoc, SetOptions.merge())
+          .addOnSuccessListener(aVoid -> android.util.Log.e("MANUEL_DEBUG", "writeRestaurantDocs: Wrote users/" + uid + " with role: restaurant"))
+          .addOnFailureListener(e -> android.util.Log.e("MANUEL_DEBUG", "writeRestaurantDocs: FAILED users/" + uid + ": " + e.getMessage()));
 
         // restaurants/{uid}  — full profile data
         Map<String, Object> restaurantDoc = new HashMap<>(seed);
         restaurantDoc.put("email", email);
-        db.collection("restaurants").document(uid).set(restaurantDoc);
+        db.collection("restaurants").document(uid).set(restaurantDoc)
+          .addOnSuccessListener(aVoid -> android.util.Log.e("MANUEL_DEBUG", "writeRestaurantDocs: Wrote restaurants/" + uid))
+          .addOnFailureListener(e -> android.util.Log.e("MANUEL_DEBUG", "writeRestaurantDocs: FAILED restaurants/" + uid + ": " + e.getMessage()));
 
         // restaurantSeeds/{emailId}  — used when owner re-registers
-        db.collection("restaurantSeeds").document(emailToDocId(email)).set(seed);
+        db.collection("restaurantSeeds").document(emailToDocId(email)).set(seed)
+          .addOnSuccessListener(aVoid -> android.util.Log.e("MANUEL_DEBUG", "writeRestaurantDocs: Wrote restaurantSeeds/" + emailToDocId(email)))
+          .addOnFailureListener(e -> android.util.Log.e("MANUEL_DEBUG", "writeRestaurantDocs: FAILED restaurantSeeds/" + emailToDocId(email) + ": " + e.getMessage()));
     }
 
     private static Map<String, Object> restaurant(String name, String email,

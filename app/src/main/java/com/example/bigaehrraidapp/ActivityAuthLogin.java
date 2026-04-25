@@ -69,13 +69,9 @@ public class ActivityAuthLogin extends AppCompatActivity {
         // Show the right bottom section based on role
         LinearLayout layoutCreateAccount = findViewById(R.id.layoutCreateAccount);
         TextView     tvContactAdmin      = findViewById(R.id.tvContactAdmin);
-        if ("restaurant".equals(role)) {
-            tvContactAdmin.setVisibility(View.VISIBLE);
-            layoutCreateAccount.setVisibility(View.GONE);
-        } else {
-            layoutCreateAccount.setVisibility(View.VISIBLE);
-            tvContactAdmin.setVisibility(View.GONE);
-        }
+        
+        layoutCreateAccount.setVisibility(View.VISIBLE);
+        tvContactAdmin.setVisibility(View.GONE);
 
         tvGoToRegister.setOnClickListener(v -> {
             Intent intent = new Intent(ActivityAuthLogin.this, ActivityAuthRegister.class);

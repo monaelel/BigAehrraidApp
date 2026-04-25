@@ -55,6 +55,24 @@
             android:inputType="textPassword"
             android:layout_marginTop="16dp" />
 
+        <EditText
+            android:id="@+id/et_register_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Description (Restaurants Only)"
+            android:inputType="textMultiLine"
+            android:visibility="gone"
+            android:layout_marginTop="16dp" />
+
+        <EditText
+            android:id="@+id/et_register_opening_hours"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Opening Hours (e.g. 9 AM - 10 PM)"
+            android:inputType="text"
+            android:visibility="gone"
+            android:layout_marginTop="16dp" />
+
         <!-- Role selection hidden: only customers can self-register -->
         <RadioGroup
             android:id="@+id/rgUserRole"
