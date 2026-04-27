@@ -5,14 +5,14 @@
     android:orientation="vertical"
     android:gravity="center"
     android:padding="32dp"
-    android:background="#FFFFFF">
+    android:background="@color/ag_bg">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="[ Logo ]"
-        android:textSize="18sp"
-        android:textColor="#000000" />
+    <ImageView
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:src="@drawable/logo"
+        android:scaleType="fitCenter"
+        android:layout_marginBottom="8dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -20,7 +20,7 @@
         android:text="Big Aehrraid"
         android:textStyle="bold"
         android:textSize="28sp"
-        android:textColor="#000000"
+        android:textColor="@color/ag_text_primary"
         android:layout_marginTop="8dp" />
 
     <TextView
@@ -28,37 +28,43 @@
         android:layout_height="wrap_content"
         android:text="Who are you?"
         android:textSize="16sp"
-        android:textColor="#666666"
+        android:textColor="@color/ag_text_secondary"
         android:layout_marginTop="48dp"
         android:layout_marginBottom="32dp" />
 
     <Button
         android:id="@+id/btnCustomer"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
+        android:layout_height="56dp"
         android:text="Customer"
         android:textSize="18sp"
-        android:backgroundTint="#000000"
-        android:textColor="#FFFFFF"
+        android:background="@drawable/shape_ag_btn_primary"
+        android:textColor="@color/white"
+        android:textAllCaps="false"
+        android:stateListAnimator="@null"
         android:layout_marginBottom="16dp" />
 
     <Button
         android:id="@+id/btnRestaurant"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
+        android:layout_height="56dp"
         android:text="Restaurant"
         android:textSize="18sp"
-        android:backgroundTint="#000000"
-        android:textColor="#FFFFFF"
+        android:background="@drawable/shape_ag_btn_outlined"
+        android:textColor="@color/ag_primary"
+        android:textAllCaps="false"
+        android:stateListAnimator="@null"
         android:layout_marginBottom="16dp" />
 
     <Button
         android:id="@+id/btnGuest"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
+        android:layout_height="56dp"
         android:text="Continue as Guest"
         android:textSize="16sp"
-        android:background="@drawable/shape_button_outline"
-        android:textColor="#000000" />
+        android:background="@drawable/shape_ag_btn_outlined"
+        android:textColor="@color/ag_text_secondary"
+        android:textAllCaps="false"
+        android:stateListAnimator="@null" />
 
 </LinearLayout>

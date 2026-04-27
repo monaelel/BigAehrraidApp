@@ -5,7 +5,7 @@
     android:orientation="vertical"
     android:gravity="center"
     android:padding="32dp"
-    android:background="#FFFFFF">
+    android:background="@color/ag_bg">
 
     <TextView
         android:layout_width="wrap_content"
@@ -13,37 +13,42 @@
         android:text="Account"
         android:textSize="26sp"
         android:textStyle="bold"
-        android:textColor="#000000"
+        android:textColor="@color/ag_text_primary"
         android:layout_marginBottom="48dp" />
 
     <Button
         android:id="@+id/btnAccountInformation"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
+        android:layout_height="56dp"
         android:text="Account Information"
         android:textSize="16sp"
-        android:backgroundTint="#000000"
-        android:textColor="#FFFFFF"
+        android:background="@drawable/shape_ag_btn_primary"
+        android:textColor="@color/white"
+        android:textAllCaps="false"
+        android:stateListAnimator="@null"
         android:layout_marginBottom="16dp" />
 
     <Button
         android:id="@+id/btnManageStoreHours"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
+        android:layout_height="56dp"
         android:text="Manage Store Hours"
         android:textSize="16sp"
-        android:backgroundTint="#000000"
-        android:textColor="#FFFFFF"
+        android:background="@drawable/shape_ag_btn_outlined"
+        android:textColor="@color/ag_primary"
+        android:textAllCaps="false"
+        android:stateListAnimator="@null"
         android:layout_marginBottom="16dp" />
 
     <Button
         android:id="@+id/btnLogout"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
+        android:layout_height="56dp"
         android:text="Logout"
         android:textSize="16sp"
-        android:backgroundTint="#FFFFFF"
-        android:textColor="#FF0000"
-        android:background="@drawable/shape_button_outline" />
+        android:textColor="@color/ag_error"
+        android:background="@drawable/shape_ag_btn_danger_outline"
+        android:textAllCaps="false"
+        android:stateListAnimator="@null" />
 
 </LinearLayout>

@@ -4,14 +4,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F5F5F5">
+    android:background="@color/ag_bg">
 
     <!-- Header -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:background="#FFFFFF"
+        android:background="@color/ag_surface"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:paddingBottom="16dp"
@@ -25,7 +25,7 @@
             android:layout_height="24dp"
             android:src="@drawable/ic_chevron_down"
             android:rotation="90"
-            app:tint="#000000"
+            app:tint="@color/ag_text_primary"
             android:clickable="true"
             android:focusable="true" />
 
@@ -35,7 +35,7 @@
             android:layout_weight="1"
             android:text="Checkout"
             android:textSize="20sp"
-            android:textColor="#000000"
+            android:textColor="@color/ag_text_primary"
             android:textStyle="bold"
             android:gravity="center"
             android:layout_marginEnd="24dp" />
@@ -57,7 +57,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/shape_card_rounded"
+                android:background="@drawable/shape_ag_card_elevated"
                 android:padding="16dp"
                 android:layout_marginBottom="24dp">
 
@@ -66,7 +66,7 @@
                     android:layout_height="wrap_content"
                     android:text="Order Summary"
                     android:textSize="18sp"
-                    android:textColor="#000000"
+                    android:textColor="@color/ag_text_primary"
                     android:textStyle="bold"
                     android:layout_marginBottom="16dp"/>
 
@@ -80,13 +80,13 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Subtotal"
-                        android:textColor="#666666"/>
+                        android:textColor="@color/ag_text_secondary"/>
                     <TextView
                         android:id="@+id/tvSubtotal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="$24.50"
-                        android:textColor="#000000"/>
+                        android:textColor="@color/ag_text_primary"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -99,19 +99,19 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Taxes &amp; Fees"
-                        android:textColor="#666666"/>
+                        android:textColor="@color/ag_text_secondary"/>
                     <TextView
                         android:id="@+id/tvTaxes"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="$3.20"
-                        android:textColor="#000000"/>
+                        android:textColor="@color/ag_text_primary"/>
                 </LinearLayout>
 
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="#E0E0E0"
+                    android:background="@color/ag_divider"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp"/>
 
@@ -126,7 +126,7 @@
                         android:text="Total"
                         android:textStyle="bold"
                         android:textSize="18sp"
-                        android:textColor="#000000"/>
+                        android:textColor="@color/ag_text_primary"/>
                     <TextView
                         android:id="@+id/tvTotal"
                         android:layout_width="wrap_content"
@@ -134,7 +134,7 @@
                         android:text="$27.70"
                         android:textStyle="bold"
                         android:textSize="18sp"
-                        android:textColor="#DB600F"/>
+                        android:textColor="@color/ag_primary"/>
                 </LinearLayout>
             </LinearLayout>
 
@@ -143,7 +143,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/shape_card_rounded"
+                android:background="@drawable/shape_ag_card_elevated"
                 android:padding="16dp">
 
                 <TextView
@@ -151,7 +151,7 @@
                     android:layout_height="wrap_content"
                     android:text="Payment Method"
                     android:textSize="18sp"
-                    android:textColor="#000000"
+                    android:textColor="@color/ag_text_primary"
                     android:textStyle="bold"
                     android:layout_marginBottom="16dp"/>
 
@@ -167,7 +167,7 @@
                     android:layout_height="wrap_content"
                     android:text="Test Mode: Use 4242 4242 4242 4242"
                     android:textSize="12sp"
-                    android:textColor="#888888"
+                    android:textColor="@color/ag_text_hint"
                     android:layout_marginBottom="16dp"/>
 
                 <Button
@@ -176,8 +176,10 @@
                     android:layout_height="56dp"
                     android:text="Pay $27.70"
                     android:textSize="16sp"
-                    android:backgroundTint="#000000"
-                    android:textColor="#FFFFFF" />
+                    android:background="@drawable/shape_ag_btn_primary"
+                    android:textColor="@color/white"
+                    android:textAllCaps="false"
+                    android:stateListAnimator="@null" />
 
             </LinearLayout>
         </LinearLayout>

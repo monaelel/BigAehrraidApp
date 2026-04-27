@@ -2,10 +2,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/shape_card_rounded"
+    android:background="@drawable/shape_ag_card_elevated"
     android:orientation="vertical"
     android:padding="16dp"
-    android:layout_marginBottom="12dp">
+    android:elevation="2dp"
+    android:layout_marginBottom="14dp">
 
     <!-- Row 1: Order ID + Status badge -->
     <LinearLayout
@@ -13,7 +14,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:layout_marginBottom="4dp">
+        android:layout_marginBottom="6dp">
 
         <TextView
             android:id="@+id/tvOrderId"
@@ -21,7 +22,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Order #372873"
-            android:textColor="#000000"
+            android:textColor="@color/ag_text_primary"
             android:textSize="16sp"
             android:textStyle="bold" />
 
@@ -29,14 +30,16 @@
             android:id="@+id/tvStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/shape_badge"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:paddingTop="3dp"
-            android:paddingBottom="3dp"
+            android:background="@drawable/shape_ag_badge"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
             android:text="Incoming"
-            android:textColor="#000000"
-            android:textSize="12sp" />
+            android:textColor="@color/ag_primary"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.04" />
 
     </LinearLayout>
 
@@ -46,16 +49,23 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="[ Customer Name ]"
-        android:textColor="#666666"
+        android:textColor="@color/ag_text_secondary"
         android:textSize="14sp"
-        android:layout_marginBottom="10dp" />
+        android:layout_marginBottom="12dp" />
+
+    <!-- Thin divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/ag_divider"
+        android:layout_marginBottom="12dp" />
 
     <!-- Row 3: Item count + Total -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginBottom="12dp">
+        android:layout_marginBottom="14dp">
 
         <TextView
             android:id="@+id/tvItemCount"
@@ -63,7 +73,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="[ Count ] items"
-            android:textColor="#444444"
+            android:textColor="@color/ag_text_secondary"
             android:textSize="14sp" />
 
         <TextView
@@ -71,8 +81,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="$ [amount]"
-            android:textColor="#000000"
-            android:textSize="14sp"
+            android:textColor="@color/ag_primary"
+            android:textSize="16sp"
             android:textStyle="bold" />
 
     </LinearLayout>
@@ -90,37 +100,41 @@
         <Button
             android:id="@+id/btnAccept"
             android:layout_width="0dp"
-            android:layout_height="40dp"
+            android:layout_height="42dp"
             android:layout_weight="1"
             android:layout_marginEnd="8dp"
-            android:backgroundTint="#000000"
+            android:background="@drawable/shape_ag_btn_accent"
             android:text="Accept"
-            android:textColor="#FFFFFF"
-            android:textSize="14sp" />
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:textAllCaps="false"
+            android:stateListAnimator="@null" />
 
-        <TextView
+        <Button
             android:id="@+id/btnDecline"
             android:layout_width="0dp"
-            android:layout_height="40dp"
+            android:layout_height="42dp"
             android:layout_weight="1"
-            android:background="@drawable/shape_button_outline"
-            android:gravity="center"
+            android:background="@drawable/shape_ag_btn_danger_outline"
             android:text="Decline"
-            android:textColor="#000000"
-            android:textSize="14sp" />
+            android:textColor="@color/ag_error"
+            android:textSize="14sp"
+            android:textAllCaps="false"
+            android:stateListAnimator="@null" />
 
     </LinearLayout>
 
     <!-- Preparing: Ready -->
-    <TextView
+    <Button
         android:id="@+id/btnReady"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:background="@drawable/shape_button_outline"
-        android:gravity="center"
+        android:layout_height="42dp"
+        android:background="@drawable/shape_ag_btn_outlined"
         android:text="Ready"
-        android:textColor="#000000"
+        android:textColor="@color/ag_primary"
         android:textSize="14sp"
+        android:textAllCaps="false"
+        android:stateListAnimator="@null"
         android:visibility="gone" />
 
 </LinearLayout>

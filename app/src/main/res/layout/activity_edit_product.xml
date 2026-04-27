@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#FFFFFF">
+    android:background="@color/ag_bg">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -30,7 +30,7 @@
             android:text="Edit Product"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:textColor="#000000"
+            android:textColor="@color/ag_text_primary"
             android:layout_marginStart="8dp" />
 
     </LinearLayout>
@@ -50,7 +50,7 @@
                 android:id="@+id/layoutImagePicker"
                 android:layout_width="match_parent"
                 android:layout_height="180dp"
-                android:background="#F5F5F5"
+                android:background="@drawable/shape_ag_image_frame"
                 android:layout_marginBottom="20dp">
 
                 <ImageView
@@ -79,7 +79,7 @@
                         android:layout_height="wrap_content"
                         android:text="Tap to change photo"
                         android:textSize="14sp"
-                        android:textColor="#888888"
+                        android:textColor="@color/ag_text_hint"
                         android:layout_marginTop="8dp" />
 
                 </LinearLayout>
@@ -90,7 +90,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Product Name *"
-                android:textColor="#000000"
+                android:textColor="@color/ag_text_primary"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="6dp" />
@@ -102,14 +102,16 @@
                 android:hint="e.g. Margherita Pizza"
                 android:inputType="textCapWords"
                 android:padding="12dp"
-                android:background="@drawable/shape_card_rounded"
+                android:textColor="@color/ag_text_primary"
+                android:textColorHint="@color/ag_text_hint"
+                android:background="@drawable/shape_ag_card_elevated"
                 android:layout_marginBottom="16dp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Description"
-                android:textColor="#000000"
+                android:textColor="@color/ag_text_primary"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="6dp" />
@@ -122,14 +124,16 @@
                 android:inputType="textMultiLine"
                 android:gravity="top"
                 android:padding="12dp"
-                android:background="@drawable/shape_card_rounded"
+                android:textColor="@color/ag_text_primary"
+                android:textColorHint="@color/ag_text_hint"
+                android:background="@drawable/shape_ag_card_elevated"
                 android:layout_marginBottom="16dp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Price ($) *"
-                android:textColor="#000000"
+                android:textColor="@color/ag_text_primary"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="6dp" />
@@ -141,14 +145,16 @@
                 android:hint="e.g. 12.99"
                 android:inputType="numberDecimal"
                 android:padding="12dp"
-                android:background="@drawable/shape_card_rounded"
+                android:textColor="@color/ag_text_primary"
+                android:textColorHint="@color/ag_text_hint"
+                android:background="@drawable/shape_ag_card_elevated"
                 android:layout_marginBottom="16dp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Category"
-                android:textColor="#000000"
+                android:textColor="@color/ag_text_primary"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="6dp" />
@@ -157,7 +163,7 @@
                 android:id="@+id/spinnerCategory"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
-                android:background="@drawable/shape_card_rounded"
+                android:background="@drawable/shape_ag_card_elevated"
                 android:paddingStart="12dp"
                 android:paddingEnd="12dp"
                 android:layout_marginBottom="16dp" />
@@ -166,7 +172,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Stock (units)"
-                android:textColor="#000000"
+                android:textColor="@color/ag_text_primary"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="6dp" />
@@ -178,7 +184,9 @@
                 android:hint="e.g. 50"
                 android:inputType="number"
                 android:padding="12dp"
-                android:background="@drawable/shape_card_rounded"
+                android:textColor="@color/ag_text_primary"
+                android:textColorHint="@color/ag_text_hint"
+                android:background="@drawable/shape_ag_card_elevated"
                 android:layout_marginBottom="24dp" />
 
         </LinearLayout>
@@ -189,9 +197,11 @@
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:layout_margin="16dp"
-        android:backgroundTint="#000000"
+        android:background="@drawable/shape_ag_btn_primary"
         android:text="Save Changes"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp" />
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:textAllCaps="false"
+        android:stateListAnimator="@null" />
 
 </LinearLayout>

@@ -2,7 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF">
+    android:background="@color/ag_bg">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -28,21 +28,23 @@
                 android:layout_height="wrap_content"
                 android:text="Big Aehrraid"
                 android:textStyle="bold"
-                android:textSize="24sp" />
+                android:textSize="24sp"
+                android:textColor="@color/ag_text_primary" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="SET UP YOUR RESTAURANT"
                 android:layout_marginTop="24dp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:textColor="@color/ag_primary" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="All fields are required."
                 android:textSize="12sp"
-                android:textColor="#888888"
+                android:textColor="@color/ag_text_hint"
                 android:layout_marginTop="4dp" />
 
             <EditText
@@ -51,6 +53,10 @@
                 android:layout_height="wrap_content"
                 android:hint="Restaurant Name"
                 android:inputType="textCapWords"
+                android:padding="12dp"
+                android:textColor="@color/ag_text_primary"
+                android:textColorHint="@color/ag_text_hint"
+                android:background="@drawable/shape_ag_card_elevated"
                 android:layout_marginTop="20dp" />
 
             <EditText
@@ -59,6 +65,10 @@
                 android:layout_height="wrap_content"
                 android:hint="Phone Number (e.g. 416-555-1234)"
                 android:inputType="phone"
+                android:padding="12dp"
+                android:textColor="@color/ag_text_primary"
+                android:textColorHint="@color/ag_text_hint"
+                android:background="@drawable/shape_ag_card_elevated"
                 android:layout_marginTop="16dp" />
 
             <EditText
@@ -67,6 +77,10 @@
                 android:layout_height="wrap_content"
                 android:hint="Contact Email"
                 android:inputType="textEmailAddress"
+                android:padding="12dp"
+                android:textColor="@color/ag_text_primary"
+                android:textColorHint="@color/ag_text_hint"
+                android:background="@drawable/shape_ag_card_elevated"
                 android:layout_marginTop="16dp" />
 
             <EditText
@@ -75,6 +89,10 @@
                 android:layout_height="wrap_content"
                 android:hint="Street Address"
                 android:inputType="textCapWords"
+                android:padding="12dp"
+                android:textColor="@color/ag_text_primary"
+                android:textColorHint="@color/ag_text_hint"
+                android:background="@drawable/shape_ag_card_elevated"
                 android:layout_marginTop="16dp" />
 
             <EditText
@@ -83,6 +101,10 @@
                 android:layout_height="wrap_content"
                 android:hint="City"
                 android:inputType="textCapWords"
+                android:padding="12dp"
+                android:textColor="@color/ag_text_primary"
+                android:textColorHint="@color/ag_text_hint"
+                android:background="@drawable/shape_ag_card_elevated"
                 android:layout_marginTop="16dp" />
 
             <TextView
@@ -90,14 +112,16 @@
                 android:layout_height="wrap_content"
                 android:text="Province / Territory"
                 android:textSize="12sp"
-                android:textColor="#888888"
+                android:textColor="@color/ag_text_hint"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="2dp" />
 
             <Spinner
                 android:id="@+id/spinnerProvince"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:background="@drawable/shape_ag_card_elevated"
+                android:padding="12dp" />
 
             <EditText
                 android:id="@+id/etSetupPostalCode"
@@ -106,15 +130,22 @@
                 android:hint="Postal Code (e.g. A1A 1A1)"
                 android:inputType="textCapCharacters"
                 android:maxLength="7"
+                android:padding="12dp"
+                android:textColor="@color/ag_text_primary"
+                android:textColorHint="@color/ag_text_hint"
+                android:background="@drawable/shape_ag_card_elevated"
                 android:layout_marginTop="16dp" />
 
             <Button
                 android:id="@+id/btnSetupSave"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="56dp"
                 android:text="Save &amp; Continue"
-                android:backgroundTint="#000000"
-                android:textColor="#FFFFFF"
+                android:background="@drawable/shape_ag_btn_primary"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:textAllCaps="false"
+                android:stateListAnimator="@null"
                 android:layout_marginTop="32dp"
                 android:layout_marginBottom="32dp" />
 

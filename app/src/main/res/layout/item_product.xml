@@ -3,22 +3,23 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/shape_card_rounded"
+    android:background="@drawable/shape_ag_card_elevated"
     android:orientation="vertical"
-    android:layout_marginBottom="12dp">
+    android:elevation="2dp"
+    android:layout_marginBottom="14dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="12dp">
+        android:padding="14dp">
 
         <ImageView
             android:id="@+id/ivProductImage"
             android:layout_width="90dp"
             android:layout_height="90dp"
             android:scaleType="centerCrop"
-            android:background="#F0F0F0"
+            android:background="@drawable/shape_ag_image_frame"
             android:layout_marginEnd="14dp" />
 
         <LinearLayout
@@ -33,7 +34,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Product Name"
-                android:textColor="#000000"
+                android:textColor="@color/ag_text_primary"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -42,7 +43,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Stocks: —"
-                android:textColor="#555555"
+                android:textColor="@color/ag_text_secondary"
                 android:textSize="13sp"
                 android:layout_marginTop="4dp" />
 
@@ -51,21 +52,31 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Price: $0.00 / unit"
-                android:textColor="#000000"
+                android:textColor="@color/ag_primary"
                 android:textSize="13sp"
+                android:textStyle="bold"
                 android:layout_marginTop="4dp" />
 
         </LinearLayout>
 
     </LinearLayout>
 
+    <!-- Thin divider above actions -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/ag_divider"
+        android:layout_marginStart="14dp"
+        android:layout_marginEnd="14dp" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp"
-        android:paddingBottom="12dp"
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="14dp"
         android:gravity="center_vertical">
 
         <Button
@@ -75,9 +86,11 @@
             android:layout_weight="1"
             android:text="Delete"
             android:textSize="13sp"
-            android:textColor="#000000"
-            android:background="@drawable/shape_btn_outlined"
-            android:layout_marginEnd="6dp" />
+            android:textColor="@color/ag_error"
+            android:background="@drawable/shape_ag_btn_danger_outline"
+            android:textAllCaps="false"
+            android:stateListAnimator="@null"
+            android:layout_marginEnd="8dp" />
 
         <Button
             android:id="@+id/btnEditProduct"
@@ -86,9 +99,11 @@
             android:layout_weight="1"
             android:text="Edit"
             android:textSize="13sp"
-            android:textColor="#000000"
-            android:background="@drawable/shape_btn_outlined"
-            android:layout_marginEnd="6dp" />
+            android:textColor="@color/ag_primary"
+            android:background="@drawable/shape_ag_btn_outlined"
+            android:textAllCaps="false"
+            android:stateListAnimator="@null"
+            android:layout_marginEnd="8dp" />
 
         <Button
             android:id="@+id/btnToggleAvailable"
@@ -97,10 +112,12 @@
             android:layout_weight="1"
             android:text="Available"
             android:textSize="13sp"
-            android:textColor="#000000"
+            android:textColor="@color/ag_success"
             android:maxLines="1"
             app:autoSizeTextType="uniform"
-            android:background="@drawable/shape_btn_outlined" />
+            android:background="@drawable/shape_ag_btn_outlined"
+            android:textAllCaps="false"
+            android:stateListAnimator="@null" />
 
     </LinearLayout>
 

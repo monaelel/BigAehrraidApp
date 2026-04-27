@@ -2,7 +2,8 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/ag_bg">
 
     <FrameLayout
         android:id="@+id/mapContainer"
@@ -14,7 +15,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_margin="12dp"
-        android:background="@drawable/shape_card_rounded"
+        android:background="@drawable/shape_ag_card_elevated"
         android:elevation="6dp"
         android:gravity="center_vertical"
         android:paddingStart="12dp"
@@ -26,7 +27,7 @@
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:src="@drawable/ic_nav_maps"
-            app:tint="#888888" />
+            app:tint="@color/ag_text_hint" />
 
         <EditText
             android:id="@+id/etMapSearch"
@@ -36,8 +37,8 @@
             android:layout_marginStart="8dp"
             android:hint="Search restaurants by name..."
             android:textSize="14sp"
-            android:textColor="#1A1A1A"
-            android:textColorHint="#AAAAAA"
+            android:textColor="@color/ag_text_primary"
+            android:textColorHint="@color/ag_text_hint"
             android:background="@null"
             android:inputType="text"
             android:imeOptions="actionSearch"
@@ -52,7 +53,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:layout_margin="16dp"
-        android:background="@drawable/shape_card_rounded"
+        android:background="@drawable/shape_ag_card_elevated"
         android:elevation="8dp"
         android:orientation="vertical"
         android:visibility="gone"
@@ -65,7 +66,7 @@
             android:layout_height="160dp"
             android:scaleType="centerCrop"
             android:contentDescription="Restaurant"
-            android:background="#DDDDDD" />
+            android:background="@color/ag_surface" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -79,14 +80,14 @@
                 android:layout_height="wrap_content"
                 android:textSize="17sp"
                 android:textStyle="bold"
-                android:textColor="#1A1A1A" />
+                android:textColor="@color/ag_text_primary" />
 
             <TextView
                 android:id="@+id/tvRestaurantCardRating"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="12sp"
-                android:textColor="#FF6B35"
+                android:textColor="@color/ag_primary"
                 android:layout_marginTop="2dp"
                 android:text="★★★★☆ 4.5" />
 
@@ -95,7 +96,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="13sp"
-                android:textColor="#666666"
+                android:textColor="@color/ag_text_secondary"
                 android:layout_marginTop="6dp"
                 android:maxLines="2"
                 android:ellipsize="end" />

@@ -3,19 +3,20 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/shape_card_rounded"
+    android:background="@drawable/shape_ag_card_elevated"
     android:orientation="horizontal"
-    android:padding="12dp"
-    android:layout_marginBottom="12dp"
+    android:padding="14dp"
+    android:elevation="2dp"
+    android:layout_marginBottom="14dp"
     android:gravity="center_vertical">
 
     <ImageView
         android:id="@+id/ivCartImage"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
         android:scaleType="centerCrop"
-        android:background="#F0F0F0"
-        android:layout_marginEnd="12dp" />
+        android:background="@drawable/shape_ag_image_frame"
+        android:layout_marginEnd="14dp" />
 
     <LinearLayout
         android:layout_width="0dp"
@@ -27,16 +28,17 @@
             android:id="@+id/tvCartProductName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#000000"
-            android:textSize="16sp"
+            android:textColor="@color/ag_text_primary"
+            android:textSize="15sp"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tvCartProductPrice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#000000"
+            android:textColor="@color/ag_primary"
             android:textSize="14sp"
+            android:textStyle="bold"
             android:layout_marginTop="4dp" />
 
     </LinearLayout>
@@ -52,27 +54,27 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@android:drawable/ic_menu_delete"
-            app:tint="#D32F2F"
+            app:tint="@color/ag_error"
             android:layout_gravity="end"
-            android:layout_marginBottom="8dp"/>
+            android:layout_marginBottom="10dp"/>
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:background="@drawable/shape_card_rounded"
-            android:backgroundTint="#F0F0F0"
+            android:background="@drawable/shape_ag_qty_control"
             android:padding="4dp">
 
             <TextView
                 android:id="@+id/btnMinus"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
-                android:text="-"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:text="−"
                 android:textSize="18sp"
                 android:gravity="center"
                 android:textStyle="bold"
+                android:textColor="@color/ag_primary"
                 android:clickable="true"
                 android:focusable="true"/>
 
@@ -81,19 +83,21 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="1"
-                android:textSize="16sp"
+                android:textSize="15sp"
                 android:textStyle="bold"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"/>
+                android:textColor="@color/ag_text_primary"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"/>
 
             <TextView
                 android:id="@+id/btnPlus"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
                 android:text="+"
                 android:textSize="18sp"
                 android:gravity="center"
                 android:textStyle="bold"
+                android:textColor="@color/ag_primary"
                 android:clickable="true"
                 android:focusable="true"/>
         </LinearLayout>

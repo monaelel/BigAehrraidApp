@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F5F5F5">
+    android:background="@color/ag_bg">
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -20,14 +20,14 @@
         android:text="No restaurants found"
         android:gravity="center"
         android:textSize="16sp"
-        android:textColor="#888888"
+        android:textColor="@color/ag_text_hint"
         android:visibility="gone" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvRestaurants"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#F5F5F5"
+        android:background="@color/ag_bg"
         android:padding="8dp" />
 
 </LinearLayout>

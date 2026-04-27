@@ -35,9 +35,10 @@ public class CustomerAccountFragment extends Fragment {
             btnLogout.setVisibility(View.VISIBLE);
             btnLogin.setVisibility(View.GONE);
 
-            btnAccountInformation.setOnClickListener(v ->
-                Toast.makeText(getContext(), "Account Information — coming soon", Toast.LENGTH_SHORT).show()
-            );
+            btnAccountInformation.setOnClickListener(v -> {
+                Intent intent = new Intent(requireContext(), AccountClientActivity.class);
+                startActivity(intent);
+            });
 
             btnOrderHistory.setOnClickListener(v -> {
                 Intent intent = new Intent(requireContext(), CustomerOrderHistoryActivity.class);

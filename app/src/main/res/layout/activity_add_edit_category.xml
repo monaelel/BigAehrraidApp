@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#FFFFFF">
+    android:background="@color/ag_bg">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -31,9 +31,8 @@
             android:text="Add Category"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:textColor="#000000"
+            android:textColor="@color/ag_text_primary"
             android:layout_marginStart="8dp" />
-
     </LinearLayout>
 
     <LinearLayout
@@ -47,7 +46,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Category Name *"
-            android:textColor="#000000"
+            android:textColor="@color/ag_text_primary"
             android:textSize="14sp"
             android:textStyle="bold"
             android:layout_marginBottom="6dp" />
@@ -58,10 +57,11 @@
             android:layout_height="wrap_content"
             android:hint="e.g. Chef's Specials"
             android:inputType="textCapWords"
-            android:padding="12dp"
-            android:background="@drawable/shape_card_rounded"
+            android:padding="14dp"
+            android:background="@drawable/shape_ag_card_elevated"
+            android:textColor="@color/ag_text_primary"
+            android:textColorHint="@color/ag_text_hint"
             android:layout_marginBottom="20dp" />
-
     </LinearLayout>
 
     <Button
@@ -69,9 +69,11 @@
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:layout_margin="16dp"
-        android:backgroundTint="#000000"
+        android:background="@drawable/shape_ag_btn_primary"
         android:text="Save Category"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp" />
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:textAllCaps="false"
+        android:stateListAnimator="@null" />
 
 </LinearLayout>

@@ -2,17 +2,18 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/shape_card_rounded"
+    android:background="@drawable/shape_ag_card_elevated"
     android:orientation="horizontal"
-    android:padding="12dp"
-    android:layout_marginBottom="12dp">
+    android:padding="14dp"
+    android:elevation="2dp"
+    android:layout_marginBottom="14dp">
 
     <ImageView
         android:id="@+id/ivProductImage"
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:scaleType="centerCrop"
-        android:background="#F0F0F0"
+        android:background="@drawable/shape_ag_image_frame"
         android:layout_marginEnd="14dp" />
 
     <LinearLayout
@@ -26,7 +27,7 @@
             android:id="@+id/tvProductName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#000000"
+            android:textColor="@color/ag_text_primary"
             android:textSize="16sp"
             android:textStyle="bold" />
 
@@ -34,8 +35,9 @@
             android:id="@+id/tvProductPrice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#000000"
-            android:textSize="13sp"
+            android:textColor="@color/ag_primary"
+            android:textSize="14sp"
+            android:textStyle="bold"
             android:layout_marginTop="4dp" />
 
         <TextView
@@ -50,11 +52,15 @@
     <Button
         android:id="@+id/btnAddToCart"
         android:layout_width="wrap_content"
-        android:layout_height="36dp"
+        android:layout_height="38dp"
         android:text="Add"
-        android:backgroundTint="#000000"
-        android:textColor="#FFFFFF"
-        android:textSize="12sp"
-        android:layout_marginStart="8dp" />
+        android:background="@drawable/shape_ag_btn_accent"
+        android:textColor="@color/white"
+        android:textSize="13sp"
+        android:textAllCaps="false"
+        android:stateListAnimator="@null"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:layout_gravity="center_vertical" />
 
 </LinearLayout>

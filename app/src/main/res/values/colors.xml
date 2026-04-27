@@ -1,12 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- ── Core Neutrals ─────────────────────────────────────── -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- ── Antigravity Ethereal Palette ───────────────────────── -->
+    <!-- Background: very faint cool-white with a hint of blue -->
+    <color name="ag_bg">#F4F6FB</color>
+    <color name="ag_bg_overlay">#E8ECF5</color>
+
+    <!-- Primary: rich indigo-violet that feels weightless -->
+    <color name="ag_primary">#6C63FF</color>
+    <color name="ag_primary_dark">#5A52D5</color>
+    <color name="ag_primary_light">#A5A0FF</color>
+
+    <!-- Accent: soft coral for CTAs and warmth -->
+    <color name="ag_accent">#FF6B6B</color>
+    <color name="ag_accent_light">#FF9E9E</color>
+
+    <!-- Surface: glass card backgrounds -->
+    <color name="ag_surface">#FFFFFF</color>
+    <color name="ag_surface_glass">#D9FFFFFF</color>
+    <color name="ag_surface_elevated">#F0F0FF</color>
+
+    <!-- Text hierarchy -->
+    <color name="ag_text_primary">#1E1E2E</color>
+    <color name="ag_text_secondary">#6E7191</color>
+    <color name="ag_text_hint">#A0A3BD</color>
+    <color name="ag_text_disabled">#C4C4D4</color>
+
+    <!-- Borders & dividers -->
+    <color name="ag_border">#E4E4F0</color>
+    <color name="ag_border_focus">#6C63FF</color>
+    <color name="ag_divider">#EEEEF6</color>
+
+    <!-- Status colors -->
+    <color name="ag_success">#42B387</color>
+    <color name="ag_warning">#F59E0B</color>
+    <color name="ag_error">#EF4444</color>
+    <color name="ag_info">#3B82F6</color>
+
+    <!-- Legacy compatibility -->
     <color name="lightgreen">#7BBA9B</color>
     <color name="pastelgreen">#42B387</color>
     <color name="green">#09573A</color>
     <color name="darkergreen">#09573A</color>
     <color name="orange">#DB600F</color>
 
-
+    <!-- Gradient anchors (used in drawables) -->
+    <color name="ag_gradient_start">#6C63FF</color>
+    <color name="ag_gradient_end">#A78BFA</color>
 </resources>

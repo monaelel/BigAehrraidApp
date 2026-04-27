@@ -1,9 +1,53 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.BigAehrraidApp" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/ag_primary</item>
+        <item name="colorPrimaryVariant">@color/ag_primary_dark</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/ag_accent</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="android:colorBackground">@color/ag_bg</item>
+        <item name="colorSurface">@color/ag_surface</item>
+        <item name="colorOnSurface">@color/ag_text_primary</item>
+        <item name="colorError">@color/ag_error</item>
+        <item name="android:textColorPrimary">@color/ag_text_primary</item>
+        <item name="android:textColorSecondary">@color/ag_text_secondary</item>
+        <item name="android:textColorHint">@color/ag_text_hint</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@color/ag_bg</item>
     </style>
 
     <style name="Theme.BigAehrraidApp" parent="Base.Theme.BigAehrraidApp" />
+
+    <!-- ── Antigravity Input Field Style ───────────────── -->
+    <style name="AgEditText" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="android:background">@drawable/shape_ag_input</item>
+        <item name="android:paddingStart">20dp</item>
+        <item name="android:paddingEnd">20dp</item>
+        <item name="android:paddingTop">16dp</item>
+        <item name="android:paddingBottom">16dp</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">@color/ag_text_primary</item>
+        <item name="android:textColorHint">@color/ag_text_hint</item>
+    </style>
+
+    <!-- ── Antigravity Primary Button ─────────────────── -->
+    <style name="AgButton" parent="Widget.Material3.Button">
+        <item name="android:background">@drawable/shape_ag_btn_primary</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:letterSpacing">0.02</item>
+        <item name="android:paddingTop">16dp</item>
+        <item name="android:paddingBottom">16dp</item>
+        <item name="android:elevation">8dp</item>
+        <item name="android:stateListAnimator">@null</item>
+    </style>
+
+    <!-- ── Antigravity Glass Card ─────────────────────── -->
+    <style name="AgGlassCard">
+        <item name="android:background">@drawable/shape_ag_glass_card</item>
+        <item name="android:elevation">4dp</item>
+        <item name="android:padding">20dp</item>
+    </style>
 </resources>

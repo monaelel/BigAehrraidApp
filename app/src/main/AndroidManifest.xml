@@ -35,6 +35,8 @@
         <activity android:name=".RestaurantMainActivity" android:exported="false" />
         <activity android:name=".RestaurantSetupActivity" android:exported="false" />
         <activity android:name=".CustomerOrderHistoryActivity" android:exported="false" />
+        <activity android:name=".AccountClientActivity" android:exported="false" />
+        <activity android:name=".AccountStoreActivity" android:exported="false" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

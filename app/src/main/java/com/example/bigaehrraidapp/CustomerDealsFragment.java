@@ -53,7 +53,7 @@ public class CustomerDealsFragment extends Fragment {
 
         List<Category> categories = Category.getFixedCategories();
         CategoryHomeAdapter adapter = new CategoryHomeAdapter(categories);
-        rvCategories.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        rvCategories.setLayoutManager(new androidx.recyclerview.widget.GridLayoutManager(getContext(), 3));
         rvCategories.setAdapter(adapter);
         adapter.setOnCategoryClickListener(cat -> {
             Intent intent = new Intent(requireActivity(), RestaurantListActivity.class);

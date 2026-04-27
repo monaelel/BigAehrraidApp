@@ -1,5 +1,6 @@
 package com.example.bigaehrraidapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,9 +46,10 @@ public class RestaurantAccountFragment extends Fragment {
 
         loadProfile();
 
-        btnEditInformation.setOnClickListener(v ->
-                Toast.makeText(getContext(), "Please call admin to modify your restaurant!", Toast.LENGTH_SHORT).show()
-        );
+        btnEditInformation.setOnClickListener(v -> {
+            Intent intent = new Intent(requireContext(), AccountStoreActivity.class);
+            startActivity(intent);
+        });
 
         return view;
     }
